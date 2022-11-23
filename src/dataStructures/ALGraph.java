@@ -124,4 +124,28 @@ public class ALGraph<T> implements ALIGraph<T> {
 		
 		return false;
 	}
+
+	/**
+	 * Returns the list with all the vertexes in the graph.
+	 * 
+	 * @return the list with all the vertexes in the graph
+	 */
+	public List<ALVertex<T>> getVertexes() {
+		return vertexes;
+	}
+	
+	/**
+	 * Returns the vertex at the specified position in the list of the vertexes.
+	 * 
+	 * @param i the index of the vertex to return.
+	 * @return the vertex placed in the specified index. Null if the specified index is equals 
+	 * or greater than the size of the vertexes list.
+	 */
+	public ALVertex<T> get(int i) {
+		if(i >= vertexes.size()) {
+			return null;
+		}
+		
+		return vertexes.get(i);
+	}
 }
