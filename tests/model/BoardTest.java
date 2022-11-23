@@ -52,4 +52,11 @@ class BoardTest {
 		assertEquals(2, graph.get(0).getAdjacents().get(0).getValue().getValue().getNumber());
 		assertEquals(20, graph.get(0).getAdjacents().get(1).getValue().getValue().getNumber());
 	}
+	
+	@Test
+	void boardStrTest1() {
+		setupStage1();
+		
+		System.out.println(board.getBoardStr(1));
+	}
 }

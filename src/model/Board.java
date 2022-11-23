@@ -94,7 +94,34 @@ public class Board {
 		boardAL.addEdge(boardAL.get((columns*rows)-1), boardAL.get(0), FORWARD_BACKWARD_MOVEMENTS_COST);
 	}
 	
-//	------------------------------NOT SO IMPORTANT THING------------------------------
+	/**
+	 * Constructs a String representation of the board. Depending of the boardVersion value, 
+	 * constructs the normal board representation, the portals board representation, or the seeds
+	 * board representation.
+	 * 
+	 * @param boardVersion the value to decide which representation constructs.
+	 */
+	public void createBoardStrAL(int boardVersion) {
+		boardStr = "";
+		
+		for (int i = 0; i < (columns*rows); i++) {
+			if(i %columns == 0 && i!= 0) {
+				boardStr += "\n";
+				
+				for (int j = (i+columns-1); j >= i; j--) {
+					boardStr += boardAL.get(j).getValue().squareToString(boardVersion) + "	";
+				}
+				
+				i += columns;
+				
+				boardStr += "\n";
+			}
+			
+			boardStr += boardAL.get(i).getValue().squareToString(boardVersion) + "	";
+		}
+	}
+	
+//	------------------------------NOT SO IMPORTANT THINGS------------------------------
 	public void generateAlphabet() {
 		for (int i = 0; i < 26; i++) {
 			if(i+65 != 'R' && i+65 != 'M') {
@@ -141,7 +168,9 @@ public class Board {
 		this.totalSeeds = totalSeeds;
 	}
 
-	public String getBoardStr() {
+	public String getBoardStr(int boardVersion) {
+		createBoardStrAL(boardVersion);
+		
 		return boardStr;
 	}
 

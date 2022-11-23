@@ -41,7 +41,7 @@ public class Square {
 		}
 	}
 	
-	public String squareToStringNormal() {
+	private String squareToStringNormal() {
 		if(!seed && player == null) {
 			return "[ " + number + " ]";
 		} else if(player != null) {
@@ -51,7 +51,7 @@ public class Square {
 		}		
 	}
 	
-	public String squareToStringPortals() {
+	private String squareToStringPortals() {
 		if(portalPair != null) {
 			return "[ " + portalLetter + " ]";
 		} else {
@@ -59,7 +59,7 @@ public class Square {
 		}		
 	}
 	
-	public String squareToStringSeeds() {
+	private String squareToStringSeeds() {
 		if(seed) {
 			return "[ * ]";
 		} else {
