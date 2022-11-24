@@ -6,13 +6,14 @@ import java.util.Random;
 import dataStructures.ALGraph;
 import dataStructures.ALVertex;
 import dataStructures.Graph;
-import dataStructures.Vertex;
 
 public class Board {
 	
+	private final int NORMAL_MODE = 0;
+	private final int AUMENTED_MOVEMENT_MODE = 1;
+	
 	private final int FORWARD_BACKWARD_MOVEMENTS_COST = 1; //The cost of movements to move from one square to other (placed front or behind it).
 	private final int UP_DOWN_MOVEMENTS_COST = 2; //The cost of movements to move from one square to other (placed above or below it).
-	private final int DIAGONALLY_MOVEMENTS_COST = 3; //The cost of movements to move from one square to other (placed diagonally to it).
 	
 	private final int RICK_INDEX = 0;
 	private final int MORTY_INDEX = 1;
@@ -27,6 +28,8 @@ public class Board {
 	private ALGraph<Square> boardAL; //Board created by using ALGraph.
 	private Graph<Square> board; //Board created by using Graph.
 	
+	private int mode;
+	
 	private long timeBeg;
 	private long timeEnd;
 	private long totalTime;
@@ -38,9 +41,10 @@ public class Board {
 	
 	private ArrayList<Character> alphabet;
 	
-	public Board(int columns, int rows) {
+	public Board(int columns, int rows, int mode) {
 		this.columns = columns;
 		this.rows = rows;
+		this.mode = mode;
 		
 		this.players = new ArrayList<>();
 		this.alphabet = new ArrayList<>();
@@ -66,7 +70,11 @@ public class Board {
 			/*
 			 * All the squares has been created.
 			 */
-			connectSquaresALGraph();
+			if(mode == NORMAL_MODE) {
+				connectSquaresNormalModeALGraph();
+			} else if(mode == AUMENTED_MOVEMENT_MODE) {
+				connectSquaresAumentedMovementModeALGraph();
+			}
 						
 			return;
 		}
@@ -83,7 +91,7 @@ public class Board {
 	 * To connect two squares, they must be consecutive. At the end, connects the final square 
 	 * with the initial one.
 	 */
-	private void connectSquaresALGraph() {
+	private void connectSquaresNormalModeALGraph() {
 		for (int i = 0; i < (columns*rows)-1; i++) {
 			int auxSq = boardAL.get(i).getValue().getNumber();
 			int auxSq2 = boardAL.get(i+1).getValue().getNumber();
@@ -93,7 +101,49 @@ public class Board {
 			}
 		}
 		
-		boardAL.addEdge(boardAL.get((columns*rows)-1), boardAL.get(0), FORWARD_BACKWARD_MOVEMENTS_COST);
+		boardAL.addEdge(boardAL.get((columns*rows)-1), boardAL.get(0), 
+				FORWARD_BACKWARD_MOVEMENTS_COST);
+	}
+	
+	/**
+	 * Connects the squares of the board (the one created with ALGraph). 
+	 * 
+	 * To connect two squares, they must be consecutive, or be one above the other. 
+	 * At the end, connects the final square with the initial one.
+	 * 
+	 * The squares in the first row don't have a connection to an upper square. In the 
+	 * same way the squares in the last row don't have a connection to a square below 
+	 * them.
+	 * 
+	 * Formula to get the index of the square below:
+	 * 	sqNum + (maxRow-sqNum)*2
+	 */
+	private void connectSquaresAumentedMovementModeALGraph() {
+		connectSquaresNormalModeALGraph();
+		
+		int rowNum = 1;
+		int sqCounter = 0;
+		
+		for (int i = 0; i < (columns*rows); i++) {
+			if(sqCounter == columns) {
+				++rowNum;
+				sqCounter = 0;
+			}
+			
+			int sqNum = boardAL.get(i).getValue().getNumber();
+			int maxRow = (columns*rowNum);
+			
+			int belowSqIndex = sqNum+(maxRow-sqNum)*2;
+			
+			if(belowSqIndex >= boardAL.getVertexes().size()) {
+				break;
+			} else if(sqNum != maxRow) {
+				boardAL.addEdge(boardAL.get(i), boardAL.get(belowSqIndex), 
+						UP_DOWN_MOVEMENTS_COST);
+			}
+			
+			++sqCounter;
+		}
 	}
 	
 	/**

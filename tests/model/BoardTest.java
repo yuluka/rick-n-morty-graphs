@@ -16,15 +16,19 @@ class BoardTest {
 	private Player morty;
 	
 	public void setupStage1() {
-		board = new Board(4,5);
+		board = new Board(4,5,0);
+	}
+	
+	public void setupStage6() {
+		board = new Board(4,5,1);
 	}
 	
 	public void setupStage2() {
-		board = new Board(3,3);
+		board = new Board(3,3,0);
 	}
 	
 	public void setupStage3() {
-		board = new Board(4,5);
+		board = new Board(4,5,0);
 		
 		ALGraph<Square> graph = board.getBoardAL();
 		
@@ -42,7 +46,7 @@ class BoardTest {
 	}
 	
 	public void setupStage4() {
-		board = new Board(4,5);
+		board = new Board(4,5,0);
 		
 		ALGraph<Square> graph = board.getBoardAL();
 		
@@ -60,7 +64,7 @@ class BoardTest {
 	}
 	
 	public void setupStage5() {
-		board = new Board(4,5);
+		board = new Board(4,5,0);
 		
 		ALGraph<Square> graph = board.getBoardAL();
 		
@@ -114,6 +118,52 @@ class BoardTest {
 		
 		assertEquals(2, graph.get(0).getAdjacents().get(0).getValue().getValue().getNumber());
 		assertEquals(20, graph.get(0).getAdjacents().get(1).getValue().getValue().getNumber());
+	}
+	
+	@Test
+	void creationTest4() {
+		setupStage6();
+		
+		ALGraph<Square> graph = board.getBoardAL();
+		
+		assertEquals(19, graph.get(19).getAdjacents().get(0).getValue().getValue().getNumber());
+		assertEquals(1, graph.get(19).getAdjacents().get(1).getValue().getValue().getNumber());
+		
+		assertEquals(13, graph.get(19).getAdjacents().get(2).getValue().getValue().getNumber());
+		assertEquals(3, graph.get(19).getAdjacents().size());
+		
+		assertEquals(2, graph.get(0).getAdjacents().get(0).getValue().getValue().getNumber());
+		assertEquals(20, graph.get(0).getAdjacents().get(1).getValue().getValue().getNumber());
+	
+		assertEquals(8, graph.get(0).getAdjacents().get(2).getValue().getValue().getNumber());
+		assertEquals(3, graph.get(0).getAdjacents().size());
+	}
+	
+	@Test
+	void creationTest5() {
+		setupStage6();
+		
+		ALGraph<Square> graph = board.getBoardAL();
+		
+		assertEquals(10, graph.get(10).getAdjacents().get(0).getValue().getValue().getNumber());
+		assertEquals(12, graph.get(10).getAdjacents().get(1).getValue().getValue().getNumber());
+		
+		assertEquals(6, graph.get(10).getAdjacents().get(2).getValue().getValue().getNumber());
+		assertEquals(14, graph.get(10).getAdjacents().get(3).getValue().getValue().getNumber());
+		assertEquals(4, graph.get(10).getAdjacents().size());
+	}
+	
+	@Test
+	void creationTest6() {
+		setupStage6();
+		
+		ALGraph<Square> graph = board.getBoardAL();
+		
+		assertEquals(11, graph.get(11).getAdjacents().get(0).getValue().getValue().getNumber());
+		assertEquals(13, graph.get(11).getAdjacents().get(1).getValue().getValue().getNumber());
+		
+		assertEquals(5, graph.get(11).getAdjacents().get(2).getValue().getValue().getNumber());
+		assertEquals(3, graph.get(11).getAdjacents().size());
 	}
 	
 	@Test

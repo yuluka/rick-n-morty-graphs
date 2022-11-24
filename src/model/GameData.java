@@ -37,12 +37,12 @@ public class GameData implements Serializable{
 	 * @param rows the number of rows the board will have.
 	 * @return false if the dimensions are 1*1. True otherwise.
 	 */
-	public static boolean createBoard(int col, int rows) {
+	public static boolean createBoard(int col, int rows, int gameMode) {
 		if((col*rows) <= 1) {
 			return false;
 		}
 		
-		board = new Board(col, rows);
+		board = new Board(col, rows, gameMode);
 		
 		return true;
 	}
@@ -114,7 +114,7 @@ public class GameData implements Serializable{
 	 * 
 	 * @param direction the direction to move.
 	 */
-	public void movePlayer(int direction) {
+	public static void movePlayer(int direction) {
 		if(direction != FORWARD_DIRECTION && direction != BACKWARD_DIRECTION) {
 			return;
 		}
@@ -141,7 +141,7 @@ public class GameData implements Serializable{
 	 * 
 	 * @return "R" if the player that is playing as Rick has the turn. "M" if not.
 	 */
-	public String getTurn() {
+	public static String getTurn() {
 		if(board.getRick().isTurn()) {
 			return "R";
 		} else {
@@ -301,6 +301,19 @@ public class GameData implements Serializable{
 			e.printStackTrace();
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * Returns the winner of the last game.
+	 * 
+	 * @return the winner of the last game.
+	 */
+	public static String getWinner() {
+		if(board.getWinner().getName().equals("M")) {
+			return "Morty con " + board.getMorty().getSeeds() + " semillas.";
+		} else {
+			return "Rick con " + board.getRick().getSeeds() + " semillas.";
 		}
 	}
 
