@@ -7,16 +7,13 @@ public class Square {
 	private final int NORMAL_BOARD = 1;
 	private final int PORTALS_BOARD = 2;
 	
-	private int number; //Es el número de la casilla.
-	private ArrayList<Player> players;
+	private int number; //The square number.
+	private ArrayList<Player> players; //The list of the players placed in this squares.
 	
-	private String portalLetter;
-	private Square portalPair;
+	private String portalLetter; //The letter representation of the portal.
+	private Square portalPair; //The other part of the portal.
 	
 	private boolean seed;
-	
-//	private Square next;
-//	private Square previous;
 	
 	public Square(int number) {
 		this.number = number;
@@ -36,7 +33,36 @@ public class Square {
 	public void removePlayer(Player player) {
 		players.remove(player);
 	}
+	
+	/**
+	 * Search for a player in the square. If the player is in, returns true. Otherwise, 
+	 * returns false.
+	 * 
+	 * @param player the searched player.
+	 * @return true if the player is in. False if not.
+	 */
+	public boolean containsPlayer(Player player) {
+		return containsPlayer(player.getUsername());
+	}
+	
+	public boolean containsPlayer(String playerUsername) {
+		for (int i = 0; i < players.size(); i++) {
+			if(players.get(i).getUsername().equals(playerUsername)) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
 
+	/**
+	 * Returns the string representation of the square, depending on the boardVersion
+	 * value.
+	 * 
+	 * @param boardVersion the wanted version of the string representation. 1 to get the 
+	 * normal, 2 to see the portals placed in, and any other to see the seed in the square.
+	 * @return the string representation of the square
+	 */
 	public String squareToString(int boardVersion) {
 		if(boardVersion == NORMAL_BOARD) {
 			return squareToStringNormal();
@@ -54,7 +80,7 @@ public class Square {
 			String sqAux = "[ ";
 			
 			for (int i = 0; i < players.size(); i++) {
-				sqAux += players.get(i) + " ";
+				sqAux += players.get(i).getName() + " ";
 			}
 			
 			sqAux += "]";

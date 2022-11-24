@@ -292,7 +292,7 @@ public class Board {
 	 * @param usernameR the nickname of the player that is playing as Rick.
 	 * @param usernameM the nickname of the player that is playing as Morty.
 	 */
-	public void positionPlayerAL(String usernameR, String usernameM) {
+	public void positionPlayersAL(String usernameR, String usernameM) {
 		Player rick = new Player(usernameR, "R");
 		Player morty = new Player(usernameM, "M"); //Creates the players.
 		
@@ -329,7 +329,13 @@ public class Board {
 		return boardAL.getVertexes().get(randomPos-1).getValue();
 	}
 //	----------------Seeds----------------
-	public void createSeedsAl(int seeds) {
+	
+	/**
+	 * Creates the specified amount of seeds inside the board.
+	 * 
+	 * @param seeds the amount of seeds.
+	 */
+	public void createSeedsAL(int seeds) {
 		totalSeeds = seeds;
 		
 		spreadSeedsAL(seeds);
@@ -377,8 +383,15 @@ public class Board {
 //	---------Portals---------
 	
 	/**
-	 * Generates the portals the board will have. To do that, 
-	 * @param portals
+	 * Generates the specified amount of portals in the board. 
+	 * 
+	 * Each portal has two parts: one for the entrance and the other for the exit.
+	 * 
+	 * So, the method generates, first, a random square for the first part of the portal 
+	 * and, after that, generates other random square, can not be the same, for the second
+	 * part of the portal.
+	 * 
+	 * @param portals the amounts of portals to create.
 	 */
 	public void generatePortalsAL(int portals) {
 		if(portals == 0) {
@@ -494,6 +507,23 @@ public class Board {
 		}
 	}
 	
+	/**
+	 * Search for a square in the board. If the square is in, returns true. Otherwise, 
+	 * returns false.
+	 * 
+	 * @param sq the searched square.
+	 * @return true if the square is in. False if not.
+	 */
+	public boolean containsSquare(Square sq) {
+		for (int i = 0; i < (columns*rows); i++) {
+			if(boardAL.get(i).getValue().equals(sq)) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
 	public Player getMorty() {
 		return players.get(MORTY_INDEX);
 	}
@@ -526,6 +556,14 @@ public class Board {
 		this.totalSeeds = totalSeeds;
 	}
 
+	/**
+	 * Returns the string representation of the board. Depending of the boardVersion value, 
+	 * constructs the normal board representation, the portals board representation, or 
+	 * the seeds board representation.
+	 * 
+	 * @param boardVersion the value to decide which representation constructs.
+	 * @return the string representation of the board.
+	 */
 	public String getBoardStr(int boardVersion) {
 		createBoardStrAL(boardVersion);
 		

@@ -1,6 +1,9 @@
 package model;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import org.junit.jupiter.api.Test;
 
@@ -220,5 +223,87 @@ class BoardTest {
 		board.movePlayerAL(3,-1);
 		
 		assertEquals(15,board.getMortySq().getNumber());
+	}
+	
+	@Test
+	void positionPlayerTest1() {
+		setupStage1();
+		
+		board.positionPlayersAL("y", "d");
+		
+		assertTrue(board.getRickSq().containsPlayer("y"));
+	}
+	
+	@Test
+	void positionPlayerTest2() {
+		setupStage1();
+		
+		board.positionPlayersAL("y", "d");
+		
+		assertTrue(board.getMortySq().containsPlayer("d"));
+	}
+
+	//The players are placed inside the board.
+	@Test
+	void positionPlayerTest3() {
+		setupStage1();
+		
+		board.positionPlayersAL("y", "d");
+		
+		assertTrue(board.containsSquare(board.getRickSq()));
+		assertTrue(board.containsSquare(board.getMortySq()));
+	}
+	
+	@Test
+	void collectSeedTest1() {
+		setupStage3();
+		
+		ALGraph<Square> graph = board.getBoardAL();
+
+		graph.get(7).getValue().setSeed(true);
+		
+		board.collectSeed();
+		
+		assertEquals(1, board.getMorty().getSeeds());
+		assertEquals(0, board.getRick().getSeeds());
+	}
+	
+	@Test
+	void collectSeedTest2() {
+		setupStage3();
+		
+		ALGraph<Square> graph = board.getBoardAL();
+
+		graph.get(0).getValue().setSeed(true);
+		
+		board.collectSeed();
+		
+		assertEquals(1, board.getRick().getSeeds());
+		assertEquals(0, board.getMorty().getSeeds());
+	}
+	
+	@Test
+	void teleportTest1() {
+		setupStage3();
+		
+		ALGraph<Square> graph = board.getBoardAL();
+
+		graph.get(0).getValue().setPortalLetter("A");
+		graph.get(9).getValue().setPortalLetter("A");
+		
+		graph.get(0).getValue().setPortalPair(graph.get(9).getValue());
+		graph.get(9).getValue().setPortalPair(graph.get(0).getValue());
+		
+		rick.setTurn(true);
+		
+		board.teleport();
+		
+		assertEquals(10, board.getRickSq().getNumber());
+		assertFalse(graph.get(0).getValue().containsPlayer(rick));
+		
+		board.teleport();
+
+		assertEquals(1, board.getRickSq().getNumber());
+		assertFalse(graph.get(9).getValue().containsPlayer(rick));
 	}
 }

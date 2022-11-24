@@ -12,11 +12,17 @@ public class Player implements Serializable{
 	private int score; //score = seeds*120-time in seconds.
 	private boolean turn;
 	
+	/**
+	 * Constructs a new player.
+	 * 
+	 * @param username the name the player wants. Like a nickname.
+	 * @param name the letter R or M in representation of Rick or Morty.
+	 */
 	public Player(String username, String name) {
 		this.username = username;
 		this.name = name;
 		
-		turn = false;
+		this.turn = false;
 	}
 
 	public int getSeeds() {
