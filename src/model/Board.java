@@ -139,8 +139,10 @@ public class Board {
 	 * Moves the player with the current turn forward.
 	 * 
 	 * @param dice the number of movements the player can make.
+	 * @param direction the direction the player will move. -1 if the player wants to move backward
+	 * and 1 if the player wants to move forward.
 	 */
-	public void movePlayerForwardAL(int dice) {
+	public void movePlayerAL(int dice, int direction) {
 		if(dice == 0) {
 //			collectSeed(); //Checks if there is a seed in the final square.
 //			teleport(); //Checks if there is a portal in the final square.
@@ -149,12 +151,9 @@ public class Board {
 			changeTurn();
 			
 			return;
-		} 
+		}
 		
-		/*
-		 * Rick has the turn.
-		 */
-		if(players.get(RICK_INDEX).isTurn()) {
+		if(players.get(RICK_INDEX).isTurn()) { //Rick has the turn.
 			int index = searchVertexIndex(rickSq);
 			
 			ALVertex<Square> auxVertex = boardAL.get(index);
@@ -162,7 +161,11 @@ public class Board {
 			int weight = 0;
 			
 			for (int i = 0; i < auxVertex.getAdjacents().size(); i++) {
-				if(auxVertex.getValue().getNumber() == (columns*rows)) {
+				if(auxVertex.getValue().getNumber() == (columns*rows) && direction > 0) {
+					/*
+					 * The vertex where the wanted square is placed is the last one and the player
+					 * is moving forward.
+					 */
 					rickSq.removePlayer(players.get(RICK_INDEX));
 					
 					rickSq = boardAL.get(0).getValue();
@@ -171,8 +174,20 @@ public class Board {
 					
 					break;
 					
+				} else if(auxVertex.getValue().getNumber() == 1 && direction < 0) {
+					/*
+					 * The vertex where the wanted square is placed is the first one and the player
+					 * is moving backward.
+					 */
+					rickSq.removePlayer(players.get(RICK_INDEX));
+					
+					rickSq = boardAL.get((columns*rows)-1).getValue();
+					
+					weight = auxVertex.getAdjacents().get(1).getWeight();
+					
+					break;
 				} else if(auxVertex.getAdjacents().get(i).getValue().getValue().getNumber() == 
-						(rickSq.getNumber()+1)) {
+						(rickSq.getNumber()+(direction))) {
 					rickSq.removePlayer(players.get(RICK_INDEX));
 					
 					rickSq = auxVertex.getAdjacents().get(i).getValue().getValue();
@@ -185,9 +200,10 @@ public class Board {
 			
 			rickSq.addPlayer(players.get(RICK_INDEX));
 			
-			movePlayerForwardAL(dice-weight);
+			movePlayerAL(dice-weight,direction);
 			return;
-		} else {
+			
+		} else { //Exactly the same thing but when it is the morty's turn.
 			int index = searchVertexIndex(mortySq);
 			
 			ALVertex<Square> auxVertex = boardAL.get(index);
@@ -195,7 +211,11 @@ public class Board {
 			int weight = 0;
 			
 			for (int i = 0; i < auxVertex.getAdjacents().size(); i++) {
-				if(auxVertex.getValue().getNumber() == (columns*rows)) {
+				if(auxVertex.getValue().getNumber() == (columns*rows) && direction > 0) {
+					/*
+					 * The vertex where the wanted square is placed is the last one and the player
+					 * is moving forward.
+					 */
 					mortySq.removePlayer(players.get(MORTY_INDEX));
 					
 					mortySq = boardAL.get(0).getValue();
@@ -204,8 +224,20 @@ public class Board {
 					
 					break;
 					
+				} else if(auxVertex.getValue().getNumber() == 1 && direction < 0) {
+					/*
+					 * The vertex where the wanted square is placed is the first one and the player
+					 * is moving backward.
+					 */
+					mortySq.removePlayer(players.get(MORTY_INDEX));
+					
+					mortySq = boardAL.get((columns*rows)-1).getValue();
+					
+					weight = auxVertex.getAdjacents().get(1).getWeight();
+					
+					break;
 				} else if(auxVertex.getAdjacents().get(i).getValue().getValue().getNumber() == 
-						(mortySq.getNumber()+1)) {
+						(mortySq.getNumber()+(direction))) {
 					mortySq.removePlayer(players.get(MORTY_INDEX));
 										
 					mortySq = auxVertex.getAdjacents().get(i).getValue().getValue();
@@ -218,9 +250,10 @@ public class Board {
 			
 			mortySq.addPlayer(players.get(MORTY_INDEX));
 			
-			movePlayerForwardAL(dice-weight);
+			movePlayerAL(dice-weight,direction);
 			return;
 		}
+		
 	}
 	
 	/**

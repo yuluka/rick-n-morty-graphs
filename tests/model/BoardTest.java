@@ -1,7 +1,6 @@
 package model;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
@@ -11,12 +10,69 @@ class BoardTest {
 
 	private Board board;
 	
+	private Player rick;
+	private Player morty;
+	
 	public void setupStage1() {
 		board = new Board(4,5);
 	}
 	
 	public void setupStage2() {
 		board = new Board(3,3);
+	}
+	
+	public void setupStage3() {
+		board = new Board(4,5);
+		
+		ALGraph<Square> graph = board.getBoardAL();
+		
+		morty = new Player("d", "M");
+		rick = new Player("y", "R");
+		
+		board.addPlayer(rick);
+		board.addPlayer(morty);
+		
+		graph.get(0).getValue().addPlayer(rick);
+		board.setRickSq(graph.get(0).getValue());
+		
+		graph.get(7).getValue().addPlayer(morty);
+		board.setMortySq(graph.get(7).getValue());
+	}
+	
+	public void setupStage4() {
+		board = new Board(4,5);
+		
+		ALGraph<Square> graph = board.getBoardAL();
+		
+		rick = new Player("y", "R");
+		morty = new Player("d", "M");
+		
+		board.addPlayer(rick);
+		board.addPlayer(morty);
+		
+		graph.get(0).getValue().addPlayer(rick);
+		board.setRickSq(graph.get(0).getValue());
+		
+		graph.get(19).getValue().addPlayer(morty);
+		board.setMortySq(graph.get(19).getValue());
+	}
+	
+	public void setupStage5() {
+		board = new Board(4,5);
+		
+		ALGraph<Square> graph = board.getBoardAL();
+		
+		rick = new Player("y", "R");
+		morty = new Player("d", "M");
+		
+		board.addPlayer(rick);
+		board.addPlayer(morty);
+		
+		graph.get(0).getValue().addPlayer(rick);
+		board.setRickSq(graph.get(0).getValue());
+		
+		graph.get(17).getValue().addPlayer(morty);
+		board.setMortySq(graph.get(17).getValue());
 	}
 	
 	@Test
@@ -79,110 +135,90 @@ class BoardTest {
 	}
 	
 	@Test
-	void movePlayerForwardTest1() {
-		setupStage1();
+	void movePlayerTest1() {
+		setupStage3();
 		
-		ALGraph<Square> graph = board.getBoardAL();
-		
-		Player morty = new Player("d", "M");
-		
-		Player rick = new Player("y", "R");
 		rick.setTurn(true);
 		
-		board.addPlayer(rick);
-		board.addPlayer(morty);
-		
-		graph.get(0).getValue().addPlayer(rick);
-		board.setRickSq(graph.get(0).getValue());
-		
-		graph.get(7).getValue().addPlayer(morty);
-		board.setMortySq(graph.get(7).getValue());
-		
-		assertTrue(graph.get(0).getValue().getPlayers().contains(rick));
-		
-		board.movePlayerForwardAL(2);
+		board.movePlayerAL(2,1);
 		
 		assertEquals(3,board.getRickSq().getNumber());
 	}
-	
+		
 	@Test
-	void movePlayerForwardTest2() {
-		setupStage1();
+	void movePlayerTest2() {
+		setupStage3();
 		
-		ALGraph<Square> graph = board.getBoardAL();
-		
-		Player rick = new Player("y", "R");
-		
-		Player morty = new Player("d", "M");
 		morty.setTurn(true);
-		
-		board.addPlayer(rick);
-		board.addPlayer(morty);
-		
-		graph.get(0).getValue().addPlayer(rick);
-		board.setRickSq(graph.get(0).getValue());
-		
-		graph.get(7).getValue().addPlayer(morty);
-		board.setMortySq(graph.get(7).getValue());
-		
-		assertTrue(graph.get(7).getValue().getPlayers().contains(morty));
-		
-		board.movePlayerForwardAL(3);
+
+		board.movePlayerAL(3,1);
 		
 		assertEquals(11,board.getMortySq().getNumber());
 	}
 	
 	@Test
-	void movePlayerForwardTest3() {
-		setupStage1();
+	void movePlayerTest3() {
+		setupStage4();
 		
-		ALGraph<Square> graph = board.getBoardAL();
-		
-		Player rick = new Player("y", "R");
-		
-		Player morty = new Player("d", "M");
 		morty.setTurn(true);
 		
-		board.addPlayer(rick);
-		board.addPlayer(morty);
-		
-		graph.get(0).getValue().addPlayer(rick);
-		board.setRickSq(graph.get(0).getValue());
-		
-		graph.get(19).getValue().addPlayer(morty);
-		board.setMortySq(graph.get(19).getValue());
-		
-		assertTrue(graph.get(19).getValue().getPlayers().contains(morty));
-		
-		board.movePlayerForwardAL(1);
+		board.movePlayerAL(1,1);
 		
 		assertEquals(1,board.getMortySq().getNumber());
 	}
 	
 	@Test
-	void movePlayerForwardTest4() {
-		setupStage1();
+	void movePlayerTest4() {
+		setupStage5();
 		
-		ALGraph<Square> graph = board.getBoardAL();
-		
-		Player rick = new Player("y", "R");
-		
-		Player morty = new Player("d", "M");
 		morty.setTurn(true);
 		
-		board.addPlayer(rick);
-		board.addPlayer(morty);
-		
-		graph.get(0).getValue().addPlayer(rick);
-		board.setRickSq(graph.get(0).getValue());
-		
-		graph.get(17).getValue().addPlayer(morty);
-		board.setMortySq(graph.get(17).getValue());
-		
-		assertTrue(graph.get(17).getValue().getPlayers().contains(morty));
-		
-		board.movePlayerForwardAL(3);
+		board.movePlayerAL(3,1);
 		
 		assertEquals(1,board.getMortySq().getNumber());
+	}
+	
+	@Test
+	void movePlayerTest5() {
+		setupStage3();
+		
+		rick.setTurn(true);
+		
+		board.movePlayerAL(2,-1);
+		
+		assertEquals(19,board.getRickSq().getNumber());
+	}
+	
+	@Test
+	void movePlayerTest6() {
+		setupStage3();
+		
+		morty.setTurn(true);
+		
+		board.movePlayerAL(3,-1);
+		
+		assertEquals(5,board.getMortySq().getNumber());
+	}
+	
+	@Test
+	void movePlayerTest7() {
+		setupStage4();
+		
+		morty.setTurn(true);
+		
+		board.movePlayerAL(1,-1);
+		
+		assertEquals(19,board.getMortySq().getNumber());
+	}
+	
+	@Test
+	void movePlayerTest8() {
+		setupStage5();
+		
+		morty.setTurn(true);
+		
+		board.movePlayerAL(3,-1);
+		
+		assertEquals(15,board.getMortySq().getNumber());
 	}
 }
