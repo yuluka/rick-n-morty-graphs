@@ -3,7 +3,6 @@ package model;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import org.junit.jupiter.api.Test;
 
@@ -280,6 +279,28 @@ class BoardTest {
 		
 		assertEquals(1, board.getRick().getSeeds());
 		assertEquals(0, board.getMorty().getSeeds());
+	}
+	
+	@Test
+	void collectSeedTest3() {
+		setupStage3();
+		
+		ALGraph<Square> graph = board.getBoardAL();
+		
+		graph.get(9).getValue().setSeed(true);
+		
+		graph.get(0).getValue().setPortalLetter("A");
+		graph.get(9).getValue().setPortalLetter("A");
+		
+		graph.get(0).getValue().setPortalPair(graph.get(9).getValue());
+		graph.get(9).getValue().setPortalPair(graph.get(0).getValue());
+		
+		rick.setTurn(true);
+		
+		board.teleport();
+
+		assertEquals(1, board.getRick().getSeeds());
+		assertFalse(graph.get(9).getValue().isSeed());
 	}
 	
 	@Test

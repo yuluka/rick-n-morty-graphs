@@ -147,7 +147,6 @@ public class Board {
 		if(dice == 0) {
 			collectSeed(); //Checks if there is a seed in the final square.
 			teleport(); //Checks if there is a portal in the final square.
-			collectSeed(); //Checks if there is a seed in the final square, after have been teleported (if is the case).
 			
 			changeTurn();
 			
@@ -456,6 +455,11 @@ public class Board {
 		}
 	}
 	
+	/**
+	 * Generates a random character of the remaining chars in the alphabet list.
+	 * 
+	 * @return the random char.
+	 */
 	public char randomChar() {
 		Random random = new Random();
 		
@@ -522,6 +526,46 @@ public class Board {
 		}
 		
 		return false;
+	}
+	
+	/**
+	 * Checks if the game has to end by using the remaining seeds on the board.
+	 * 
+	 * @return true if the game has to end. False if not.
+	 */
+	public boolean isEndGame() {
+		if(totalSeeds == 0) {
+			timeEnd = System.currentTimeMillis();
+			totalTime = timeEnd-timeBeg;
+			
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	/**
+	 * Returns the winner player. To do that, checks which player has more seeds. 
+	 * The player with more seeds is the winner.
+	 * 
+	 * @return the winner player.
+	 */
+	public Player getWinner() {
+		if(players.get(MORTY_INDEX).getSeeds() > players.get(RICK_INDEX).getSeeds()) {
+			return players.get(MORTY_INDEX);
+		} else {
+			return players.get(RICK_INDEX);
+		}
+	}
+	/**
+	 * Calculates the winning player's score and assigns it to him.
+	 */
+	public int calculateScore() {
+		Player winner = getWinner();
+		
+		int score = (winner.getSeeds() * 120) - (int) (totalTime/1000);
+		
+		return score;
 	}
 	
 	public Player getMorty() {
