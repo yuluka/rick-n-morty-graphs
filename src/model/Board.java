@@ -1,6 +1,7 @@
 package model;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 import dataStructures.ALGraph;
 import dataStructures.ALVertex;
@@ -144,9 +145,9 @@ public class Board {
 	 */
 	public void movePlayerAL(int dice, int direction) {
 		if(dice == 0) {
-//			collectSeed(); //Checks if there is a seed in the final square.
-//			teleport(); //Checks if there is a portal in the final square.
-//			collectSeed(); //Checks if there is a seed in the final square, after have been teleported (if is the case).
+			collectSeed(); //Checks if there is a seed in the final square.
+			teleport(); //Checks if there is a portal in the final square.
+			collectSeed(); //Checks if there is a seed in the final square, after have been teleported (if is the case).
 			
 			changeTurn();
 			
@@ -285,8 +286,171 @@ public class Board {
 		return -1;
 	}
 	
-	public void addPlayer(Player player) {
-		players.add(player);
+	/**
+	 * Creates and places the players in random squares in the board.
+	 * 
+	 * @param usernameR the nickname of the player that is playing as Rick.
+	 * @param usernameM the nickname of the player that is playing as Morty.
+	 */
+	public void positionPlayerAL(String usernameR, String usernameM) {
+		Player rick = new Player(usernameR, "R");
+		Player morty = new Player(usernameM, "M"); //Creates the players.
+		
+		rick.setTurn(true); //Rick begins 'cause he's better. 
+		morty.setTurn(false); //Buh. Morty's bullshit.
+		
+		players.add(rick);
+		players.add(morty);
+		
+		rickSq = randomSquareAL();
+		
+		mortySq = randomSquareAL();
+		
+		while(mortySq.getNumber() == rickSq.getNumber()) {
+			mortySq = randomSquareAL();
+		}
+		
+		rickSq.addPlayer(rick);
+		mortySq.addPlayer(morty);
+		
+		collectSeed();
+		
+		timeBeg = System.currentTimeMillis();
+	}
+	
+	/**
+	 * Generates a random square inside the board.
+	 * 
+	 * @return the generated square.
+	 */
+	public Square randomSquareAL() {
+		int randomPos = (int) (Math.random()*(columns*rows)+1);
+		
+		return boardAL.getVertexes().get(randomPos-1).getValue();
+	}
+//	----------------Seeds----------------
+	public void createSeedsAl(int seeds) {
+		totalSeeds = seeds;
+		
+		spreadSeedsAL(seeds);
+	}
+	
+	/**
+	 * Spreads the seeds in the board.
+	 * 
+	 * @param seedsToSpread the seeds to spread.
+	 */
+	private void spreadSeedsAL(int seedsToSpread) {
+		if(seedsToSpread == 0) {
+			return;
+		}
+		
+		Square aux = randomSquareAL();
+		
+		while(aux.isSeed()) {
+			aux = randomSquareAL();
+		}
+		
+		aux.setSeed(true);
+		
+		spreadSeedsAL(--seedsToSpread);
+	}
+	
+	/**
+	 * Checks if there is a seed in the square in which the player is placed. If yes, adds it 
+	 * to the player.
+	 */
+	public void collectSeed() {
+		if(rickSq.isSeed()) {
+			players.get(RICK_INDEX).addSeeds();
+			rickSq.setSeed(false);
+			--totalSeeds;
+		} 
+		if(mortySq.isSeed()) {
+			players.get(MORTY_INDEX).addSeeds();
+			mortySq.setSeed(false);
+			--totalSeeds;
+		}
+	}
+	
+	
+//	---------Portals---------
+	
+	/**
+	 * Generates the portals the board will have. To do that, 
+	 * @param portals
+	 */
+	public void generatePortalsAL(int portals) {
+		if(portals == 0) {
+			return;
+		}
+		
+		/*
+		 * "Launch" the portal.
+		 */
+		Square portal1 = randomSquareAL();
+		
+		while(portal1.getPortalLetter() != null) {
+			/*
+			 * If there already exists a portal in the random square generated, generates
+			 * other.
+			 */
+			portal1 = randomSquareAL();
+		}
+		
+		portal1.setPortalLetter(randomChar()+"");
+		
+		/*
+		 * "Appears" the portal1 exit.
+		 */
+		
+		Square portal2 = randomSquareAL();
+		
+		while(portal2.getPortalLetter() != null) {
+			portal2 = randomSquareAL();
+		}
+		
+		portal2.setPortalLetter(portal1.getPortalLetter());
+		
+		portal1.setPortalPair(portal2);
+		portal2.setPortalPair(portal1);
+		
+		generatePortalsAL(--portals);
+	}
+	
+	/**
+	 * Checks if there is a portal in the square in which the player is placed. If yes, 
+	 * "teleports" the player to the portal pair and checks if there is any seed in the 
+	 * new position.
+	 */
+	public void teleport() {
+		if(players.get(RICK_INDEX).isTurn() && rickSq.getPortalPair() != null) {
+			rickSq.removePlayer(players.get(RICK_INDEX));
+			
+			rickSq = rickSq.getPortalPair();
+			
+			rickSq.addPlayer(players.get(RICK_INDEX));
+			
+			collectSeed();
+		} else if(mortySq.getPortalPair() != null) {
+			mortySq.removePlayer(players.get(MORTY_INDEX));
+			
+			mortySq = mortySq.getPortalPair();
+			
+			mortySq.addPlayer(players.get(MORTY_INDEX));
+			
+			collectSeed();
+		}
+	}
+	
+	public char randomChar() {
+		Random random = new Random();
+		
+		int index = random.nextInt(alphabet.size());
+		char character = alphabet.get(index);
+		alphabet.remove(index);
+		
+		return character;
 	}
 	
 //	------------------------------NOT SO IMPORTANT THINGS------------------------------
@@ -304,6 +468,29 @@ public class Board {
 			if(i+97 != 'r' && i+97 != 'm') {
 				alphabet.add((char) (i+97));
 			}
+		}
+	}
+	
+	/**
+	 * Adds a player to the board.
+	 * 
+	 * @param player the player to add.
+	 */
+	public void addPlayer(Player player) {
+		players.add(player);
+	}
+	
+	/**
+	 * Returns which player has the current turn. If it is the Rick's turn, returns true.
+	 * If it is the Morty's turn, returns false.
+	 * 
+	 * @return true if Rick has the turn. False otherwise.
+	 */
+	public boolean getTurn() {
+		if(players.get(RICK_INDEX).isTurn()) {
+			return true;
+		} else {
+			return false;
 		}
 	}
 	
