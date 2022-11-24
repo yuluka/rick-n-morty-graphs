@@ -1,12 +1,14 @@
 package model;
 
+import java.util.ArrayList;
+
 public class Square {
 	
 	private final int NORMAL_BOARD = 1;
 	private final int PORTALS_BOARD = 2;
 	
-	private int number; //Es le número de la casilla.
-	private Player player;
+	private int number; //Es el número de la casilla.
+	private ArrayList<Player> players;
 	
 	private String portalLetter;
 	private Square portalPair;
@@ -19,16 +21,20 @@ public class Square {
 	public Square(int number) {
 		this.number = number;
 		
-		this.player = null;
+		this.players = new ArrayList<>();
 		this.seed = false;
 	}
 	
-	public Player getPlayer() {
-		return player;
+	public ArrayList<Player> getPlayers() {
+		return players;
 	}
-
-	public void setPlayer(Player player) {
-		this.player = player;
+	
+	public void addPlayer(Player player) {
+		players.add(player);
+	}
+	
+	public void removePlayer(Player player) {
+		players.remove(player);
 	}
 
 	public String squareToString(int boardVersion) {
@@ -42,10 +48,18 @@ public class Square {
 	}
 	
 	private String squareToStringNormal() {
-		if(!seed && player == null) {
+		if(!seed && players.isEmpty()) {
 			return "[ " + number + " ]";
-		} else if(player != null) {
-			return "[ " + player.getName() + " ]";
+		} else if(!players.isEmpty()) {
+			String sqAux = "[ ";
+			
+			for (int i = 0; i < players.size(); i++) {
+				sqAux += players.get(i) + " ";
+			}
+			
+			sqAux += "]";
+			
+			return sqAux;
 		} else {
 			return "[ * ]";
 		}		

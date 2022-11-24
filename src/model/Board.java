@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import dataStructures.ALGraph;
 import dataStructures.ALVertex;
 import dataStructures.Graph;
+import dataStructures.Vertex;
 
 public class Board {
 	
@@ -78,8 +79,8 @@ public class Board {
 	/**
 	 * Connects the squares of the board (the one created with ALGraph). 
 	 * 
-	 * To connect two squares, they must be consecutive. At the end, connects the final square with 
-	 * the initial one.
+	 * To connect two squares, they must be consecutive. At the end, connects the final square 
+	 * with the initial one.
 	 */
 	private void connectSquaresALGraph() {
 		for (int i = 0; i < (columns*rows)-1; i++) {
@@ -121,7 +122,144 @@ public class Board {
 		}
 	}
 	
+//	--------Players movement--------
+	
+	/**
+	 * Emulates a dice launching by generating a random number between 1 and 6.
+	 * 
+	 * @return the launching result.
+	 */
+	public int launchDice() {
+		int dice = (int) (Math.random()*6+1);
+		
+		return dice;
+	}
+	
+	/**
+	 * Moves the player with the current turn forward.
+	 * 
+	 * @param dice the number of movements the player can make.
+	 */
+	public void movePlayerForwardAL(int dice) {
+		if(dice == 0) {
+//			collectSeed(); //Checks if there is a seed in the final square.
+//			teleport(); //Checks if there is a portal in the final square.
+//			collectSeed(); //Checks if there is a seed in the final square, after have been teleported (if is the case).
+			
+			changeTurn();
+			
+			return;
+		} 
+		
+		/*
+		 * Rick has the turn.
+		 */
+		if(players.get(RICK_INDEX).isTurn()) {
+			int index = searchVertexIndex(rickSq);
+			
+			ALVertex<Square> auxVertex = boardAL.get(index);
+			
+			int weight = 0;
+			
+			for (int i = 0; i < auxVertex.getAdjacents().size(); i++) {
+				if(auxVertex.getValue().getNumber() == (columns*rows)) {
+					rickSq.removePlayer(players.get(RICK_INDEX));
+					
+					rickSq = boardAL.get(0).getValue();
+					
+					weight = auxVertex.getAdjacents().get(1).getWeight();
+					
+					break;
+					
+				} else if(auxVertex.getAdjacents().get(i).getValue().getValue().getNumber() == 
+						(rickSq.getNumber()+1)) {
+					rickSq.removePlayer(players.get(RICK_INDEX));
+					
+					rickSq = auxVertex.getAdjacents().get(i).getValue().getValue();
+					
+					weight = auxVertex.getAdjacents().get(i).getWeight();
+					
+					break;
+				}
+			}
+			
+			rickSq.addPlayer(players.get(RICK_INDEX));
+			
+			movePlayerForwardAL(dice-weight);
+			return;
+		} else {
+			int index = searchVertexIndex(mortySq);
+			
+			ALVertex<Square> auxVertex = boardAL.get(index);
+			
+			int weight = 0;
+			
+			for (int i = 0; i < auxVertex.getAdjacents().size(); i++) {
+				if(auxVertex.getValue().getNumber() == (columns*rows)) {
+					mortySq.removePlayer(players.get(MORTY_INDEX));
+					
+					mortySq = boardAL.get(0).getValue();
+					
+					weight = auxVertex.getAdjacents().get(1).getWeight();
+					
+					break;
+					
+				} else if(auxVertex.getAdjacents().get(i).getValue().getValue().getNumber() == 
+						(mortySq.getNumber()+1)) {
+					mortySq.removePlayer(players.get(MORTY_INDEX));
+										
+					mortySq = auxVertex.getAdjacents().get(i).getValue().getValue();
+					
+					weight = auxVertex.getAdjacents().get(i).getWeight();
+					
+					break;
+				}
+			}
+			
+			mortySq.addPlayer(players.get(MORTY_INDEX));
+			
+			movePlayerForwardAL(dice-weight);
+			return;
+		}
+	}
+	
+	/**
+	 * Gives the turn to the other player.
+	 */
+	private void changeTurn() {
+		if(players.get(RICK_INDEX).isTurn()) {
+			players.get(MORTY_INDEX).setTurn(true);
+			players.get(RICK_INDEX).setTurn(false);
+		} else {
+			players.get(RICK_INDEX).setTurn(true);
+			players.get(MORTY_INDEX).setTurn(false);
+		}
+	}
+	
+	/**
+	 * Search the index where the vertex that contains the specified square in the graph.
+	 * 
+	 * @param sq the square that the searched vertex has to contain.
+	 * @return the index where the vertex that contains the specified square in the graph.
+	 */
+	public int searchVertexIndex(Square sq) {
+		for (int i = 0; i < (columns*rows); i++) {
+			if(boardAL.getVertexes().get(i).getValue().equals(sq)) {
+				return i;
+			}
+		}
+		
+		return -1;
+	}
+	
+	public void addPlayer(Player player) {
+		players.add(player);
+	}
+	
 //	------------------------------NOT SO IMPORTANT THINGS------------------------------
+	/**
+	 * Generates a list of lowercase and uppercase letters of the alphabet letters.
+	 */
 	public void generateAlphabet() {
 		for (int i = 0; i < 26; i++) {
 			if(i+65 != 'R' && i+65 != 'M') {

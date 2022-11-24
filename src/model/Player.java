@@ -5,7 +5,7 @@ import java.io.Serializable;
 @SuppressWarnings("serial")
 public class Player implements Serializable{
 	
-	private int seeds; //The seeds the player has recolected.
+	private int seeds; //The seeds the player has recollected.
 	private String name; //Letter R or M
 	
 	private String username; //Name of the player.
