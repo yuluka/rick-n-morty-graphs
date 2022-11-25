@@ -11,6 +11,11 @@ public class Menu {
 	private static final int NORMAL_MODE = 0;
 	private static final int AUMENTED_MOVEMENT_MODE = 1;
 	
+	private static final int MOVE_FORWARD = 1;
+	private static final int MOVE_BACKWARD = -1;
+	private static final int MOVE_UP = 1;
+	private static final int MOVE_DOWN = -1;
+	
 	private static int gameMode = -1;
 	
 	public static void menu() {
@@ -197,10 +202,12 @@ public class Menu {
 		switch (selection) {
 		case 1:
 			System.out.println("\n*** Te moverás hacia adelante ***");
+			GameData.movePlayer(MOVE_FORWARD);
 			break;
 			
 		case 2:
 			System.out.println("\n*** Te moverás hacia atrás ***");
+			GameData.movePlayer(MOVE_BACKWARD);
 			break;
 			
 		case 3:
@@ -211,6 +218,8 @@ public class Menu {
 						+ "modo de juego actual. Intenta nuevamente.");
 				directionToMove();
 			}
+			
+			moveUpOrDown(MOVE_UP);
 			
 			break;
 			
@@ -223,17 +232,44 @@ public class Menu {
 				directionToMove();
 			}
 			
-			break;
+			moveUpOrDown(MOVE_DOWN);
 			
+			break;
+
 		default:
 			System.out.println("\nTu elección es inválida. Intenta nuevamente.");
 			directionToMove();
 			break;
 		}
 		
-		GameData.movePlayer(selection);
-		
 		isEndGame();
+	}
+	
+	public static void moveUpOrDown(int direction) {
+		if(!GameData.movePlayerUpOrDown(direction)) {
+			System.out.println("\nLos movimientos disponibles no son suficientes para "
+					+ "hacer el movimiento seleccionado, o el movimiento no ha sido "
+					+ "posible. Intenta nuevamente.");
+			
+			directionToMove();
+			return;
+		} 
+		
+		System.out.println("\nTe has movido en la dirección seleccionada de manera "
+				+ "correcta.");
+		
+		int remainingMovements = GameData.getDice();
+		
+		if(remainingMovements == 0) {
+			System.out.println("\nNo te quedan más movimientos.");
+			
+			playing();
+			
+			return;
+		} else {
+			System.out.println("\nAún te quedan " + remainingMovements + " movimientos.");
+			directionToMove();	
+		}
 	}
 	
 	public static void seeBoard() {

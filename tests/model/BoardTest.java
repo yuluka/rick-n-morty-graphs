@@ -81,6 +81,27 @@ class BoardTest {
 		board.setMortySq(graph.get(17).getValue());
 	}
 	
+	public void setupStage7() {
+		board = new Board(4,5,1);
+		
+		ALGraph<Square> graph = board.getBoardAL();
+		
+		rick = new Player("y", "R");
+		morty = new Player("d", "M");
+		
+		board.addPlayer(rick);
+		board.addPlayer(morty);
+		
+		graph.get(0).getValue().addPlayer(rick);
+		board.setRickSq(graph.get(0).getValue());
+		
+		graph.get(17).getValue().addPlayer(morty);
+		board.setMortySq(graph.get(17).getValue());
+		
+		graph.get(8).getValue().setSeed(true);
+		rick.setTurn(true);
+	}
+	
 	@Test
 	void creationTest1() {
 		setupStage1();
@@ -376,5 +397,16 @@ class BoardTest {
 
 		assertEquals(1, board.getRickSq().getNumber());
 		assertFalse(graph.get(9).getValue().containsPlayer(rick));
+	}
+	
+	@Test
+	void upOrDownMovementTest() {
+		setupStage7();
+		
+		int dice = 2;
+		
+		board.movePlayerUpOrDownAL(dice, -1);
+		
+		assertEquals(8, board.getRickSq().getNumber());
 	}
 }

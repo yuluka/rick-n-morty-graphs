@@ -6,6 +6,7 @@ import java.util.Random;
 import dataStructures.ALGraph;
 import dataStructures.ALVertex;
 import dataStructures.Graph;
+import dataStructures.Vertex;
 
 public class Board {
 	
@@ -169,6 +170,10 @@ public class Board {
 				boardStr += "\n";
 			}
 			
+			if(i >= (columns*rows)) {
+				break;
+			}
+			
 			boardStr += boardAL.get(i).getValue().squareToString(boardVersion) + "	";
 		}
 	}
@@ -304,6 +309,143 @@ public class Board {
 			return;
 		}
 		
+	}
+	
+	public boolean movePlayerUpOrDownAL(int dice, int direction) {
+		if(dice < UP_DOWN_MOVEMENTS_COST) {
+			return false;
+		}
+		
+		if(players.get(RICK_INDEX).isTurn()) {
+			int index = searchVertexIndex(rickSq);
+			
+			ALVertex<Square> playerVertex = boardAL.get(index);
+			
+			if(direction > 0) { //Moving to up.
+				ALVertex<Square> upVertex = searchUpVertex(playerVertex);
+				
+				if(upVertex == null) {
+					return false;
+				}
+				
+				changeRickPosition(upVertex.getValue());
+				
+				dice -= UP_DOWN_MOVEMENTS_COST;
+				
+				checkPlayerMovements(dice);
+				
+				return true;
+			} else { //Moving to down.
+				ALVertex<Square> downVertex = searchDownVertex(playerVertex);
+				
+				if(downVertex == null) {
+					return false;
+				}
+				
+				changeRickPosition(downVertex.getValue());
+				
+				dice -= UP_DOWN_MOVEMENTS_COST;
+				
+				checkPlayerMovements(dice);
+				
+				return true;
+			}
+		} else {
+			int index = searchVertexIndex(mortySq);
+			
+			ALVertex<Square> playerVertex = boardAL.get(index);
+			
+			if(direction > 0) { //Moving to up.
+				ALVertex<Square> upVertex = searchUpVertex(playerVertex);
+				
+				if(upVertex == null) {
+					return false;
+				}
+				
+				changeMortyPosition(upVertex.getValue());
+				
+				dice -= UP_DOWN_MOVEMENTS_COST;
+
+				checkPlayerMovements(dice);
+				
+				return true;
+			} else { //Moving to down.
+				ALVertex<Square> downVertex = searchDownVertex(playerVertex);
+				
+				if(downVertex == null) {
+					return false;
+				}
+				
+				changeMortyPosition(downVertex.getValue());
+				
+				dice -= UP_DOWN_MOVEMENTS_COST;
+
+				checkPlayerMovements(dice);
+				
+				return true;
+			}
+		}
+	}
+	
+	private ALVertex<Square> searchUpVertex(ALVertex<Square> playerVertex) {
+		for (int i = 0; i < playerVertex.getAdjacents().size(); i++) {
+			int adjacentSqNum = playerVertex.getAdjacents().get(i).getValue().getValue().getNumber();
+			int playerSqNum = playerVertex.getValue().getNumber();
+			
+			if(playerSqNum == (columns*rows)) {
+				if(adjacentSqNum < playerSqNum && (playerSqNum-adjacentSqNum) > 1 &&
+						adjacentSqNum != 1) {
+					return playerVertex.getAdjacents().get(i).getValue();
+				}
+			} else if(adjacentSqNum < playerSqNum && (playerSqNum-adjacentSqNum) > 1) {
+				return playerVertex.getAdjacents().get(i).getValue();
+			}
+		}
+		
+		return null;
+	}
+	
+	private ALVertex<Square> searchDownVertex(ALVertex<Square> playerVertex) {
+		for (int i = 0; i < playerVertex.getAdjacents().size(); i++) {
+			int adjacentSqNum = playerVertex.getAdjacents().get(i).getValue().getValue().getNumber();
+			int playerSqNum = playerVertex.getValue().getNumber();
+			
+			if(playerSqNum == 1) {
+				if(adjacentSqNum > playerSqNum && (adjacentSqNum-playerSqNum) > 1 &&
+						adjacentSqNum != (columns*rows)) {
+					return playerVertex.getAdjacents().get(i).getValue();
+				}
+			} else if(adjacentSqNum > playerSqNum && (adjacentSqNum-playerSqNum) > 1) {
+				return playerVertex.getAdjacents().get(i).getValue();
+			}
+		}
+		
+		return null;
+	}
+	
+	public void changeRickPosition(Square newSquare) {
+		rickSq.removePlayer(players.get(RICK_INDEX));
+		
+		rickSq = newSquare;
+		
+		rickSq.addPlayer(players.get(RICK_INDEX));
+	}
+	
+	public void changeMortyPosition(Square newSquare) {
+		mortySq.removePlayer(players.get(MORTY_INDEX));
+		
+		mortySq = newSquare;
+		
+		mortySq.addPlayer(players.get(MORTY_INDEX));
+	}
+	
+	public void checkPlayerMovements(int dice) {
+		if(dice == 0) {
+			collectSeed(); //Checks if there is a seed in the final square.
+			teleport(); //Checks if there is a portal in the final square.
+			
+			changeTurn();
+		}
 	}
 	
 	/**
@@ -718,5 +860,9 @@ public class Board {
 
 	public void setPlayers(ArrayList<Player> players) {
 		this.players = players;
+	}
+
+	public int getUP_DOWN_MOVEMENTS_COST() {
+		return UP_DOWN_MOVEMENTS_COST;
 	}
 }

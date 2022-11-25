@@ -20,6 +20,8 @@ public class GameData implements Serializable{
 	
 	private final static int FORWARD_DIRECTION = 1;
 	private final static int BACKWARD_DIRECTION = -1;
+	private final static int UP_DIRECTION = 1;
+	private final static int DOWN_DIRECTION = -1;
 	
 	private static Board board;
 	private static ArrayList<Player> scores = new ArrayList<Player>();
@@ -120,6 +122,28 @@ public class GameData implements Serializable{
 		}
 		
 		board.movePlayerAL(dice, direction);
+	}
+	
+	/**
+	 * Moves the player with the current turn to the specified direction (up or 
+	 * down). If the specified direction is not valid, the method does nothing.
+	 * 
+	 * @param direction the direction to move.
+	 */
+	public static boolean movePlayerUpOrDown(int direction) {
+		if(direction != UP_DIRECTION && direction != DOWN_DIRECTION) {
+			return false;
+		}
+		
+		if(board.movePlayerUpOrDownAL(dice, direction)){
+			dice -= board.getUP_DOWN_MOVEMENTS_COST();
+			return true;
+		} else {
+			return false;
+		}
+		
+//		dice -= board.getUP_DOWN_MOVEMENTS_COST();
+//		return board.movePlayerUpOrDownAL(dice, direction);
 	}
 	
 	/**
@@ -332,6 +356,8 @@ public class GameData implements Serializable{
 	public static void setScores(ArrayList<Player> scores) {
 		GameData.scores = scores;
 	}
-	
-	
+
+	public static int getDice() {
+		return dice;
+	}	
 }
