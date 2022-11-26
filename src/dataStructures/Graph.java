@@ -206,6 +206,35 @@ public class Graph<T> implements IGraph<T> {
 			} 
 		}
 	}
+	
+	/**
+	 * Returns the vertex at the specified position in the list of the vertexes.
+	 * 
+	 * @param i the index of the vertex to return.
+	 * @return the vertex placed in the specified index. Null if the specified index is equals 
+	 * or greater than the size of the vertexes list.
+	 */
+	public Vertex<T> get(int i) {
+		if(i >= vertexes.size()) {
+			return null;
+		}
+		
+		return vertexes.get(i);
+	}
+	
+	/**
+	 * Returns the list placed in the specified position in the adjacency matrix.
+	 * 
+	 * @param i the index of the list to return.
+	 * @return list placed in the specified position in the adjacency matrix.
+	 */
+	public ArrayList<Integer> getMatrix(int i) {
+		if(i > adjacentMatrix.size()) {
+			return null;
+		}
+		
+		return adjacentMatrix.get(i);		
+	}
 
 	public List<Vertex<T>> getVertexes() {
 		return vertexes;

@@ -10,6 +10,8 @@ import dataStructures.Vertex;
 
 public class Board {
 	
+	private final int AL_GRAPH = 0;
+	
 	private final int NORMAL_MODE = 0;
 	private final int AUMENTED_MOVEMENT_MODE = 1;
 	
@@ -30,6 +32,7 @@ public class Board {
 	private Graph<Square> board; //Board created by using Graph.
 	
 	private int mode;
+	private int graphType;
 	
 	private long timeBeg;
 	private long timeEnd;
@@ -42,7 +45,7 @@ public class Board {
 	
 	private ArrayList<Character> alphabet;
 	
-	public Board(int columns, int rows, int mode) {
+	public Board(int columns, int rows, int mode, int graphType) {
 		this.columns = columns;
 		this.rows = rows;
 		this.mode = mode;
@@ -51,13 +54,265 @@ public class Board {
 		this.alphabet = new ArrayList<>();
 		
 		this.boardAL = new ALGraph<>();
+		this.board = new Graph<>();
 		
-		createBoardALGraph();
+		this.graphType = graphType;
+		
+		if(graphType == AL_GRAPH) {
+			createBoardALGraph();
+		} else {
+			createBoardAMGraph();
+		}
+		
 		generateAlphabet();
 	}
 	
 //	------------------------------THINGS WITH GRAPHS------------------------------
+//	AL means Adjacency list. AM means Adjacency matrix.
 	
+	
+//	-------- AM Graph --------
+	/**
+	 * Creates the board and all its squares.
+	 * To do that, the method uses a Graph (AM).
+	 */
+	public void createBoardAMGraph() {
+		createBoardAMGraph(new Square(1), 0);
+	}
+	
+	private void createBoardAMGraph(Square newSq, int i) {
+		if(i == (columns*rows)) {
+			if(mode == NORMAL_MODE) {
+				connectSquaresNormalModeAMGraph();
+			} else {
+				connectSquaresAumentedMovementModeAMGraph();
+			}
+			
+			return;
+		}
+		
+		board.addVertex(new Vertex<Square>(newSq));
+		
+		++i;
+		createBoardAMGraph(new Square(i+1), i);
+	}
+	
+	/**
+	 * Connects the squares of the board (the one created with AMGraph). 
+	 * 
+	 * To connect two squares, they must be consecutive. At the end, connects the final square 
+	 * with the initial one.
+	 */
+	private void connectSquaresNormalModeAMGraph() {
+		for (int i = 0; i < (columns*rows)-1; i++) {
+			int auxSq = board.get(i).getValue().getNumber();
+			int auxSq2 = board.get(i+1).getValue().getNumber();
+			
+			if((auxSq+1) == auxSq2) {
+				board.addEdge(board.get(auxSq-1), board.get(auxSq2-1), FORWARD_BACKWARD_MOVEMENTS_COST);
+			}
+		}
+		
+		board.addEdge(board.get((columns*rows)-1), board.get(0), 
+				FORWARD_BACKWARD_MOVEMENTS_COST);
+	}
+	
+	/**
+	 * Connects the squares of the board (the one created with AMGraph). 
+	 * 
+	 * To connect two squares, they must be consecutive, or be one above the other. 
+	 * At the end, connects the final square with the initial one.
+	 * 
+	 * The squares in the first row don't have a connection to an upper square. In the 
+	 * same way the squares in the last row don't have a connection to a square below 
+	 * them.
+	 * 
+	 * Formula to get the index of the square below:
+	 * 	sqNum + (maxRow-sqNum)*2
+	 */
+	private void connectSquaresAumentedMovementModeAMGraph() {
+		connectSquaresNormalModeAMGraph();
+		
+		int rowNum = 1;
+		int sqCounter = 0;
+		
+		for (int i = 0; i < (columns*rows); i++) {
+			if(sqCounter == columns) {
+				++rowNum;
+				sqCounter = 0;
+			}
+			
+			int sqNum = board.get(i).getValue().getNumber();
+			int maxRow = (columns*rowNum);
+			
+			int belowSqIndex = sqNum+(maxRow-sqNum)*2;
+			
+			if(belowSqIndex >= board.getVertexes().size()) {
+				break;
+			} else if(sqNum != maxRow) {
+				board.addEdge(board.get(i), board.get(belowSqIndex), 
+						UP_DOWN_MOVEMENTS_COST);
+			}
+			
+			++sqCounter;
+		}
+	}
+	
+	/**
+	 * Constructs a String representation of the board. Depending of the boardVersion value, 
+	 * constructs the normal board representation, the portals board representation, or the seeds
+	 * board representation.
+	 * 
+	 * (Using the AM Graph)
+	 * 
+	 * @param boardVersion the value to decide which representation constructs.
+	 */
+	public void createBoardStrAM(int boardVersion) {
+		boardStr = "";
+		
+		for (int i = 0; i < (columns*rows); i++) {
+			if(i %columns == 0 && i!= 0) {
+				boardStr += "\n";
+				
+				for (int j = (i+columns-1); j >= i; j--) {
+					boardStr += board.get(j).getValue().squareToString(boardVersion) + "	";
+				}
+				
+				i += columns;
+				
+				boardStr += "\n";
+			}
+			
+			if(i >= (columns*rows)) {
+				break;
+			}
+			
+			boardStr += board.get(i).getValue().squareToString(boardVersion) + "	";
+		}
+	}
+	
+//	--------Players movement--------
+	
+	/**
+	 * Moves the player with the current turn forward.
+	 * 
+	 * @param dice the number of movements the player can make.
+	 * @param direction the direction the player will move. -1 if the player wants to move backward
+	 * and 1 if the player wants to move forward.
+	 */
+	public void movePlayerAM(int dice, int direction) {
+		if(dice == 0) {
+			collectSeed(); //Checks if there is a seed in the final square.
+			teleport(); //Checks if there is a portal in the final square.
+			
+			changeTurn();
+			
+			return;
+		}
+		
+		if(players.get(RICK_INDEX).isTurn()) { //Rick has the turn.
+			int index = searchVertexIndexAM(rickSq);
+			
+			Vertex<Square> auxVertex = board.get(index); //The vertex where Rick is placed.
+			
+			ArrayList<Vertex<Square>> adjacents = constructAdjacentListAM(auxVertex);
+			
+			for (int i = 0; i < adjacents.size(); i++) {
+				if(auxVertex.getValue().getNumber() == (columns*rows) && direction > 0) {
+					/*
+					 * The vertex where the wanted square is placed is the last one and the player
+					 * is moving forward.
+					 */
+					
+					changeRickPosition(board.get(0).getValue());
+					
+					break;
+					
+				} else if(auxVertex.getValue().getNumber() == 1 && direction < 0) {
+					/*
+					 * The vertex where the wanted square is placed is the first one and the player
+					 * is moving backward.
+					 */
+					
+					changeRickPosition(board.get((columns*rows)-1).getValue());
+
+					break;
+				} else if(adjacents.get(i).getValue().getNumber() == 
+						(rickSq.getNumber()+(direction))) {
+					
+					changeRickPosition(adjacents.get(i).getValue());
+					
+					break;
+				}
+			}
+			
+			movePlayerAM(dice-FORWARD_BACKWARD_MOVEMENTS_COST,direction);
+			return;
+			
+		} else { //Exactly the same thing but when it is the morty's turn.
+			int index = searchVertexIndexAM(mortySq);
+			
+			Vertex<Square> auxVertex = board.get(index); //The vertex where Morty is placed.
+			
+			ArrayList<Vertex<Square>> adjacents = constructAdjacentListAM(auxVertex);
+			
+			for (int i = 0; i < adjacents.size(); i++) {
+				if(auxVertex.getValue().getNumber() == (columns*rows) && direction > 0) {
+					/*
+					 * The vertex where the wanted square is placed is the last one and the player
+					 * is moving forward.
+					 */
+					
+					changeMortyPosition(board.get(0).getValue());
+					
+					break;
+					
+				} else if(auxVertex.getValue().getNumber() == 1 && direction < 0) {
+					/*
+					 * The vertex where the wanted square is placed is the first one and the player
+					 * is moving backward.
+					 */
+					
+					changeMortyPosition(board.get((columns*rows)-1).getValue());
+					
+					break;
+				} else if(adjacents.get(i).getValue().getNumber() == 
+						(mortySq.getNumber()+(direction))) {
+					
+					changeMortyPosition(adjacents.get(i).getValue());
+					
+					break;
+				}
+			}
+			
+			movePlayerAM(dice-FORWARD_BACKWARD_MOVEMENTS_COST,direction);
+			return;
+		}
+		
+	}
+	
+	/**
+	 * Constructs a list with the adjacent vertexes, of the specified vertex, by using the 
+	 * AM Graph.
+	 * 
+	 * @param v the vertex of which the adjacent vertexes are to be known.
+	 * @return the adjacent vertexes list.
+	 */
+	public ArrayList<Vertex<Square>> constructAdjacentListAM(Vertex<Square> v) {
+		ArrayList<Vertex<Square>> adjacents = new ArrayList<>();
+		
+		int index = searchVertexIndexAM(v.getValue());
+		
+		for (int i = 0; i < board.getMatrix(index).size(); i++) {
+			if(board.getMatrix(index).get(i) > -1) {
+				adjacents.add(board.get(i));
+			}
+		}
+		
+		return adjacents;
+	}
+	
+//	-------- AL  Graph --------
 	/**
 	 * Creates the board and all its squares.
 	 * To do that, the method uses an ALGraph.
@@ -478,6 +733,40 @@ public class Board {
 	}
 	
 	/**
+	 * Search the index where the vertex that contains the specified square in the AM 
+	 * Graph.
+	 * 
+	 * @param sq the square that the searched vertex has to contain.
+	 * @return the index where the vertex that contains the specified square in the graph.
+	 */
+	public int searchVertexIndexAM(Square sq) {
+		for (int i = 0; i < (columns*rows); i++) {
+			if(board.getVertexes().get(i).getValue().equals(sq)) {
+				return i;
+			}
+		}
+		
+		return -1;
+	}
+	
+	/**
+	 * Searches for the square with the specified number by looking in the board with 
+	 * AM Graph.
+	 * 
+	 * @param sqNum the number of the wanted square.
+	 * @return the square with the specified number, or null.
+	 */
+	public Square searchSquareAM(int sqNum) {
+		 for (int i = 0; i < (columns*rows); i++) {
+			if(board.get(i).getValue().getNumber() == sqNum) {
+				return board.get(i).getValue();
+			}
+		}
+		
+		return null;
+	}
+	
+	/**
 	 * Creates and places the players in random squares in the board.
 	 * 
 	 * @param usernameR the nickname of the player that is playing as Rick.
@@ -801,7 +1090,11 @@ public class Board {
 	 * @return the string representation of the board.
 	 */
 	public String getBoardStr(int boardVersion) {
-		createBoardStrAL(boardVersion);
+		if(graphType == AL_GRAPH) {
+			createBoardStrAL(boardVersion);
+		} else {
+			createBoardStrAM(boardVersion);
+		}
 		
 		return boardStr;
 	}
@@ -812,6 +1105,10 @@ public class Board {
 
 	public ALGraph<Square> getBoardAL() {
 		return boardAL;
+	}
+	
+	public Graph<Square> getBoardAM() {
+		return board;
 	}
 
 	public long getTimeBeg() {

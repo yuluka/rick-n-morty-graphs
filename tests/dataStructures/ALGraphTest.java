@@ -4,7 +4,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import org.junit.jupiter.api.Test;
 
@@ -285,5 +284,24 @@ class ALGraphTest {
 		ALVertex<String> source = graph2.searchVertex("a");
 		
 		ArrayList<ALVertex<String>> prevs = graph2.dijkstra(source);
+		
+		ArrayList<String> prevsStr = new ArrayList<>();
+		prevsStr.add(null);
+		
+		for (int i = 1; i < prevs.size(); i++) {
+			prevsStr.add(prevs.get(i).getValue());
+		}
+		
+		ArrayList<String> expected = new ArrayList<>();
+		
+		expected.add(null);
+		expected.add("c");
+		expected.add("a");
+		expected.add("b");
+		expected.add("d");
+		expected.add("e");
+		
+		assertEquals(expected, prevsStr);
+		
 	}
 }

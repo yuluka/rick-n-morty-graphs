@@ -1,10 +1,8 @@
 package dataStructures;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
-import temp.PriorityQueue;
 
 /*
  * AL means Adjacency list.
@@ -156,7 +154,6 @@ public class ALGraph<T> implements ALIGraph<T> {
 	public ArrayList<ALVertex<T>> dijkstra(ALVertex<T> initialV) {
 		ArrayList<ALVertex<T>> prevs = new ArrayList<>();
 		ArrayList<Integer> dists = new ArrayList<>();
-//		PriorityQueue<Integer,ALVertex<T>> pq = new PriorityQueue<>();
 		
 		ArrayList<Pair<ALVertex<T>>> pq = new ArrayList<>();
 		
