@@ -16,7 +16,7 @@ public class Menu {
 	private static final int MOVE_UP = 1;
 	private static final int MOVE_DOWN = -1;
 	
-	private static final int GRAPH_TYPE_IN_USE = 1; //0 to use an AL Graph, 1 to use an AM Graph.
+	private static final int GRAPH_TYPE_IN_USE = 0; //0 to use an AL Graph, 1 to use an AM Graph.
 	
 	private static int gameMode = -1;
 	
@@ -197,7 +197,8 @@ public class Menu {
 				+ "\n1) Adelante."
 				+ "\n2) Atrás."
 				+ "\n3) Arriba."
-				+ "\n4) Abajo.");
+				+ "\n4) Abajo."
+				+ "\n0) Usar herramienta de ayuda de movimiento.");
 		
 		int selection = in.nextInt();
 		
@@ -238,6 +239,10 @@ public class Menu {
 			
 			break;
 
+		case 0:
+			movementHelpTool();
+			break;
+			
 		default:
 			System.out.println("\nTu elección es inválida. Intenta nuevamente.");
 			directionToMove();
@@ -245,6 +250,25 @@ public class Menu {
 		}
 		
 		isEndGame();
+	}
+	
+	public static void movementHelpTool() {
+		System.out.println("\n----- Herramienta de ayuda de movimiento -----"
+				+ "\nDigita la casilla a la que deseas ir para obtener el camino más corto "
+				+ "a recorrer:");
+		int goalSq = in.nextInt();
+		
+		String shortestPath = GameData.constructShortestPath(goalSq);
+		
+		if (shortestPath == null) {
+			System.out.println("\nLa casilla a la que deseas ir no es válida. Intenta de nuevo.");
+			movementHelpTool();
+		} else {
+			System.out.println("\nEl camino que necesita menos movimientos para llegar desde "
+					+ "tu posición hasta la casilla " + goalSq + " es: " + shortestPath);
+		}
+		
+		directionToMove();
 	}
 	
 	public static void moveUpOrDown(int direction) {

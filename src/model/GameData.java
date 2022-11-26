@@ -172,6 +172,18 @@ public class GameData implements Serializable {
 		}
 	}
 	
+	public static String constructShortestPath(int goalSq) {
+		if(goalSq > (board.getColumns()*board.getRows()) || goalSq < 1) {
+			return null;
+		}
+		
+		if(getTurn().equals("R")) {
+			return board.constructShortestPathAL(board.getRickSq().getNumber(), goalSq);
+		} else {
+			return board.constructShortestPathAL(board.getMortySq().getNumber(), goalSq);
+		}
+	}
+	
 	/**
 	 * Returns the quantity of seeds that the specified player has.
 	 * 

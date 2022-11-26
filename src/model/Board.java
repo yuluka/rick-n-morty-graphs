@@ -1031,6 +1031,23 @@ public class Board {
 	}
 	
 	/**
+	 * Searches for the square with the specified number by looking in the board with 
+	 * AL Graph.
+	 * 
+	 * @param sqNum the number of the wanted square.
+	 * @return the square with the specified number, or null.
+	 */
+	public Square searchSquareAL(int sqNum) {
+		 for (int i = 0; i < (columns*rows); i++) {
+			if(boardAL.get(i).getValue().getNumber() == sqNum) {
+				return boardAL.get(i).getValue();
+			}
+		}
+		
+		return null;
+	}
+	
+	/**
 	 * Creates and places the players in random squares in the board.
 	 * 
 	 * @param usernameR the nickname of the player that is playing as Rick.
@@ -1213,6 +1230,50 @@ public class Board {
 		alphabet.remove(index);
 		
 		return character;
+	}
+	
+	public String constructShortestPathAL(int sqInitial, int sqGoal) {
+		Square initial = searchSquareAL(sqInitial);
+		Square goal = searchSquareAL(sqGoal);
+		
+		return constructShortestPathAL(initial, goal);
+	}
+	
+	public String constructShortestPathAL(Square initial, Square goal) {
+		int indexInitialV = searchVertexIndex(initial);
+		int indexGoalV = searchVertexIndex(goal);
+		int auxIndex = indexGoalV;
+		
+		ArrayList<ALVertex<Square>> prevs = boardAL.dijkstra(boardAL.get(indexInitialV));
+		
+		String pathStr = "";
+		ArrayList<ALVertex<Square>> path = new ArrayList<>();
+		
+		while(auxIndex != indexInitialV) {
+			ALVertex<Square> prev = prevs.get(auxIndex);
+			
+//			pathStr += "[ " + prev.getValue().getNumber() + " ], ";
+			
+			path.add(0, prev);
+			
+			auxIndex = searchVertexIndex(prev.getValue());
+		}
+		
+		for (int i = 0; i < path.size(); i++) {
+			pathStr += "[ " + path.get(i).getValue().getNumber() + " ], ";
+		}
+		
+		pathStr += "[ " + goal.getNumber() + " ]";
+		
+//		for (int auxIndex = 0; auxIndex < prevs.size(); i++) {
+//			ALVertex<Square> auxV = prevs.get(indexGoalV);
+//			
+//			path += "[ " + auxV.getValue().getNumber() + " ], ";
+//			
+//			auxIndex = searchVertexIndex(auxV.getValue());
+//		}
+		
+		return pathStr;
 	}
 	
 //	------------------------------NOT SO IMPORTANT THINGS------------------------------

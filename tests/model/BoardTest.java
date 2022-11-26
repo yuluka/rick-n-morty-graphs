@@ -7,6 +7,7 @@ import static org.junit.Assert.assertTrue;
 import org.junit.jupiter.api.Test;
 
 import dataStructures.ALGraph;
+import dataStructures.ALVertex;
 import dataStructures.Graph;
 import dataStructures.Vertex;
 
@@ -147,7 +148,7 @@ class BoardTest {
 		graph.get(7).getValue().addPlayer(morty);
 		board.setMortySq(graph.get(7).getValue());
 	}
-	
+		
 	@Test
 	void creationTest1() {
 		setupStage1();
@@ -716,5 +717,12 @@ class BoardTest {
 		board.createSeedsAM(3);
 		
 		assertEquals(3, board.getTotalSeeds());
+	}
+	
+	@Test
+	void constructShortestPath() {
+		setupStage6();
+		
+		String path = board.constructShortestPathAL(1, 9);
 	}
 }
