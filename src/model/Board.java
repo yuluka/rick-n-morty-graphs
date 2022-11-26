@@ -312,7 +312,263 @@ public class Board {
 		return adjacents;
 	}
 	
-//	-------- AL  Graph --------
+	/**
+	 * Moves the player up or down, depending on the specified direction.
+	 * 
+	 * (Using the AM Graph)
+	 * 
+	 * @param dice the number of movements the player can make.
+	 * @param direction the direction the player will move. -1 if the player wants to move up
+	 * and 1 if the player wants to move down.
+	 * @return true if the movement can be made. False if not.
+	 */
+	public boolean movePlayerUpOrDownAM(int dice, int direction) {
+		if(dice < UP_DOWN_MOVEMENTS_COST) {
+			return false;
+		}
+		
+		if(players.get(RICK_INDEX).isTurn()) {
+			int index = searchVertexIndexAM(rickSq);
+			
+			Vertex<Square> playerVertex = board.get(index); //The vertex where Rick is placed.
+			
+			if(direction > 0) { //Moving to up.
+				Vertex<Square> upVertex = searchUpVertexAM(playerVertex);
+				
+				if(upVertex == null) {
+					return false;
+				}
+				
+				changeRickPosition(upVertex.getValue());
+				
+				dice -= UP_DOWN_MOVEMENTS_COST;
+				
+				checkPlayerMovements(dice);
+				
+				return true;
+			} else { //Moving to down.
+				Vertex<Square> downVertex = searchDownVertexAM(playerVertex);
+				
+				if(downVertex == null) {
+					return false;
+				}
+				
+				changeRickPosition(downVertex.getValue());
+				
+				dice -= UP_DOWN_MOVEMENTS_COST;
+				
+				checkPlayerMovements(dice);
+				
+				return true;
+			}
+		} else {
+			int index = searchVertexIndexAM(mortySq);
+			
+			Vertex<Square> playerVertex = board.get(index);
+			
+			if(direction > 0) { //Moving to up.
+				Vertex<Square> upVertex = searchUpVertexAM(playerVertex);
+				
+				if(upVertex == null) {
+					return false;
+				}
+				
+				changeMortyPosition(upVertex.getValue());
+				
+				dice -= UP_DOWN_MOVEMENTS_COST;
+
+				checkPlayerMovements(dice);
+				
+				return true;
+			} else { //Moving to down.
+				Vertex<Square> downVertex = searchDownVertexAM(playerVertex);
+				
+				if(downVertex == null) {
+					return false;
+				}
+				
+				changeMortyPosition(downVertex.getValue());
+				
+				dice -= UP_DOWN_MOVEMENTS_COST;
+
+				checkPlayerMovements(dice);
+				
+				return true;
+			}
+		}
+	}
+	
+	private Vertex<Square> searchUpVertexAM(Vertex<Square> playerVertex) {
+		ArrayList<Vertex<Square>> adjacents = constructAdjacentListAM(playerVertex);
+		
+		for (int i = 0; i < adjacents.size(); i++) {
+			int adjacentSqNum = adjacents.get(i).getValue().getNumber();
+			int playerSqNum = playerVertex.getValue().getNumber();
+			
+			if(playerSqNum == (columns*rows)) {
+				if(adjacentSqNum < playerSqNum && (playerSqNum-adjacentSqNum) > 1 &&
+						adjacentSqNum != 1) {
+					return adjacents.get(i);
+				}
+			} else if(adjacentSqNum < playerSqNum && (playerSqNum-adjacentSqNum) > 1) {
+				return adjacents.get(i);
+			}
+		}
+		
+		return null;
+	}
+	
+	private Vertex<Square> searchDownVertexAM(Vertex<Square> playerVertex) {
+		ArrayList<Vertex<Square>> adjacents = constructAdjacentListAM(playerVertex);
+				
+		for (int i = 0; i < adjacents.size(); i++) {
+			int adjacentSqNum = adjacents.get(i).getValue().getNumber();
+			int playerSqNum = playerVertex.getValue().getNumber();
+			
+			if(playerSqNum == 1) {
+				if(adjacentSqNum > playerSqNum && (adjacentSqNum-playerSqNum) > 1 &&
+						adjacentSqNum != (columns*rows)) {
+					return adjacents.get(i);
+				}
+			} else if(adjacentSqNum > playerSqNum && (adjacentSqNum-playerSqNum) > 1) {
+				return adjacents.get(i);
+			}
+		}
+		
+		return null;
+	}
+	
+	/**
+	 * Creates and places the players in random squares in the board.
+	 * 
+	 * (Using the AM Graph)
+	 * 
+	 * @param usernameR the nickname of the player that is playing as Rick.
+	 * @param usernameM the nickname of the player that is playing as Morty.
+	 */
+	public void positionPlayersAM(String usernameR, String usernameM) {
+		Player rick = new Player(usernameR, "R");
+		Player morty = new Player(usernameM, "M"); //Creates the players.
+		
+		rick.setTurn(true); //Rick begins 'cause he's better. 
+		morty.setTurn(false); //Buh. Morty's bullshit.
+		
+		players.add(rick);
+		players.add(morty);
+		
+		rickSq = randomSquareAM();
+		
+		mortySq = randomSquareAM();
+		
+		while(mortySq.getNumber() == rickSq.getNumber()) {
+			mortySq = randomSquareAM();
+		}
+		
+		rickSq.addPlayer(rick);
+		mortySq.addPlayer(morty);
+		
+		collectSeed();
+		
+		timeBeg = System.currentTimeMillis();
+	}
+	
+	/**
+	 * Generates a random square inside the board.
+	 * 
+	 * @return the generated square.
+	 */
+	public Square randomSquareAM() {
+		int randomPos = (int) (Math.random()*(columns*rows)+1);
+		
+		return board.getVertexes().get(randomPos-1).getValue();
+	}
+	
+	/**
+	 * Creates the specified amount of seeds inside the board.
+	 * 
+	 * (Using AM Graph)
+	 * 
+	 * @param seeds the amount of seeds.
+	 */
+	public void createSeedsAM(int seeds) {
+		totalSeeds = seeds;
+		
+		spreadSeedsAM(seeds);
+	}
+	
+	/**
+	 * Spreads the seeds in the board.
+	 * 
+	 * @param seedsToSpread the seeds to spread.
+	 */
+	private void spreadSeedsAM(int seedsToSpread) {
+		if(seedsToSpread == 0) {
+			return;
+		}
+		
+		Square aux = randomSquareAM();
+		
+		while(aux.isSeed()) {
+			aux = randomSquareAM();
+		}
+		
+		aux.setSeed(true);
+		
+		spreadSeedsAM(--seedsToSpread);
+	}
+	
+	/**
+	 * Generates the specified amount of portals in the board. 
+	 * 
+	 * Each portal has two parts: one for the entrance and the other for the exit.
+	 * 
+	 * So, the method generates, first, a random square for the first part of the portal 
+	 * and, after that, generates other random square, can not be the same, for the second
+	 * part of the portal.
+	 * 
+	 * (Using AM Graph)
+	 * 
+	 * @param portals the amounts of portals to create.
+	 */
+	public void generatePortalsAM(int portals) {
+		if(portals == 0) {
+			return;
+		}
+		
+		/*
+		 * "Launch" the portal.
+		 */
+		Square portal1 = randomSquareAM();
+		
+		while(portal1.getPortalLetter() != null) {
+			/*
+			 * If there already exists a portal in the random square generated, generates
+			 * other.
+			 */
+			portal1 = randomSquareAM();
+		}
+		
+		portal1.setPortalLetter(randomChar()+"");
+		
+		/*
+		 * "Appears" the portal1 exit.
+		 */
+		
+		Square portal2 = randomSquareAM();
+		
+		while(portal2.getPortalLetter() != null) {
+			portal2 = randomSquareAM();
+		}
+		
+		portal2.setPortalLetter(portal1.getPortalLetter());
+		
+		portal1.setPortalPair(portal2);
+		portal2.setPortalPair(portal1);
+		
+		generatePortalsAM(--portals);
+	}
+	
+//	-------- AL Graph --------
 	/**
 	 * Creates the board and all its squares.
 	 * To do that, the method uses an ALGraph.
@@ -447,7 +703,7 @@ public class Board {
 	}
 	
 	/**
-	 * Moves the player with the current turn forward.
+	 * Moves the player with the current turn to the specified direction..
 	 * 
 	 * @param dice the number of movements the player can make.
 	 * @param direction the direction the player will move. -1 if the player wants to move backward
@@ -566,6 +822,14 @@ public class Board {
 		
 	}
 	
+	/**
+	 * Moves the player up or down, depending on the specified direction.
+	 * 
+	 * @param dice the number of movements the player can make.
+	 * @param direction the direction the player will move. -1 if the player wants to move up
+	 * and 1 if the player wants to move down.
+	 * @return true if the movement can be made. False if not.
+	 */
 	public boolean movePlayerUpOrDownAL(int dice, int direction) {
 		if(dice < UP_DOWN_MOVEMENTS_COST) {
 			return false;
@@ -1002,6 +1266,25 @@ public class Board {
 	public boolean containsSquare(Square sq) {
 		for (int i = 0; i < (columns*rows); i++) {
 			if(boardAL.get(i).getValue().equals(sq)) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
+	/**
+	 * Search for a square in the board. If the square is in, returns true. Otherwise, 
+	 * returns false.
+	 * 
+	 * (Using the AM Graph)
+	 * 
+	 * @param sq the searched square.
+	 * @return true if the square is in. False if not.
+	 */
+	public boolean containsSquareAM(Square sq) {
+		for (int i = 0; i < (columns*rows); i++) {
+			if(board.get(i).getValue().equals(sq)) {
 				return true;
 			}
 		}

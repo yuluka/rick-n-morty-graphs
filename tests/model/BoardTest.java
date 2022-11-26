@@ -130,6 +130,24 @@ class BoardTest {
 		board.setMortySq(graph.get(7).getValue());
 	}
 	
+	public void setupStage11() {
+		board = new Board(4,5,1,1);
+		
+		Graph<Square> graph = board.getBoardAM();
+		
+		morty = new Player("d", "M");
+		rick = new Player("y", "R");
+		
+		board.addPlayer(rick);
+		board.addPlayer(morty);
+		
+		graph.get(0).getValue().addPlayer(rick);
+		board.setRickSq(graph.get(0).getValue());
+		
+		graph.get(7).getValue().addPlayer(morty);
+		board.setMortySq(graph.get(7).getValue());
+	}
+	
 	@Test
 	void creationTest1() {
 		setupStage1();
@@ -462,6 +480,92 @@ class BoardTest {
 	}
 	
 	@Test
+	void movePlayerAMTest5() {
+		setupStage11();
+		
+		morty.setTurn(true);
+		
+		board.movePlayerUpOrDownAM(2,1);
+		
+		assertEquals(1,board.getMortySq().getNumber());
+	}
+	
+	@Test
+	void movePlayerAMTest6() {
+		setupStage11();
+		
+		rick.setTurn(true);
+		
+		board.movePlayerUpOrDownAM(2,-1);
+		
+		assertEquals(8,board.getRickSq().getNumber());
+	}
+	
+	//The searchUpVertexAM method returns the correct up vertex.
+	@Test
+	void searchUpVertexAMTest1() {
+		setupStage9();
+		
+		Graph<Square> graph = board.getBoardAM();
+		
+		Square auxSq1 = board.searchSquareAM(6);
+		Square auxSq2 = board.searchSquareAM(11);
+		
+		Vertex<Square> v1 = graph.get(board.searchVertexIndexAM(auxSq1));
+		Vertex<Square> v2 = graph.get(board.searchVertexIndexAM(auxSq2));
+		
+		assertTrue(graph.searchEdge(v1, v2));
+	}
+	
+	//The squares in the first row don't have up vertex.
+	@Test
+	void searchUpVertexAMTest2() {
+		setupStage9();
+		
+		Graph<Square> graph = board.getBoardAM();
+		
+		Square auxSq1 = board.searchSquareAM(2);
+		Square auxSq2 = board.searchSquareAM(18);
+		
+		Vertex<Square> v1 = graph.get(board.searchVertexIndexAM(auxSq1));
+		Vertex<Square> v2 = graph.get(board.searchVertexIndexAM(auxSq2));
+		
+		assertFalse(graph.searchEdge(v1, v2));
+	}
+	
+	//The searchUpVertexAM method returns the correct up vertex.
+	@Test
+	void searchUpVertexAMTest3() {
+		setupStage9();
+		
+		Graph<Square> graph = board.getBoardAM();
+		
+		Square auxSq1 = board.searchSquareAM(8);
+		Square auxSq2 = board.searchSquareAM(1);
+		
+		Vertex<Square> v1 = graph.get(board.searchVertexIndexAM(auxSq1));
+		Vertex<Square> v2 = graph.get(board.searchVertexIndexAM(auxSq2));
+		
+		assertTrue(graph.searchEdge(v1, v2));
+	}
+	
+	//The searchDownVertexAM method returns the correct down vertex.
+	@Test
+	void searchDownVertexAMTest1() {
+		setupStage9();
+		
+		Graph<Square> graph = board.getBoardAM();
+		
+		Square auxSq1 = board.searchSquareAM(15);
+		Square auxSq2 = board.searchSquareAM(18);
+		
+		Vertex<Square> v1 = graph.get(board.searchVertexIndexAM(auxSq1));
+		Vertex<Square> v2 = graph.get(board.searchVertexIndexAM(auxSq2));
+		
+		assertTrue(graph.searchEdge(v1, v2));
+	}
+	
+	@Test
 	void positionPlayerTest1() {
 		setupStage1();
 		
@@ -488,6 +592,35 @@ class BoardTest {
 		
 		assertTrue(board.containsSquare(board.getRickSq()));
 		assertTrue(board.containsSquare(board.getMortySq()));
+	}
+	
+	@Test
+	void positionPlayerAMTest1() {
+		setupStage8();
+		
+		board.positionPlayersAM("y", "d");
+		
+		assertTrue(board.getRickSq().containsPlayer("y"));
+	}
+	
+	@Test
+	void positionPlayerAMTest2() {
+		setupStage8();
+		
+		board.positionPlayersAM("y", "d");
+		
+		assertTrue(board.getMortySq().containsPlayer("d"));
+	}
+	
+	//The players are placed inside the board.
+	@Test
+	void positionPlayerAMTest3() {
+		setupStage8();
+		
+		board.positionPlayersAM("y", "d");
+		
+		assertTrue(board.containsSquareAM(board.getRickSq()));
+		assertTrue(board.containsSquareAM(board.getMortySq()));
 	}
 	
 	@Test
@@ -574,5 +707,14 @@ class BoardTest {
 		board.movePlayerUpOrDownAL(dice, -1);
 		
 		assertEquals(8, board.getRickSq().getNumber());
+	}
+	
+	@Test
+	void createSeedsAMTest1() {
+		setupStage9();
+		
+		board.createSeedsAM(3);
+		
+		assertEquals(3, board.getTotalSeeds());
 	}
 }
