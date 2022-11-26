@@ -568,6 +568,42 @@ public class Board {
 		generatePortalsAM(--portals);
 	}
 	
+	public String constructShortestPathAM(int sqInitial, int sqGoal) {
+		Square initial = searchSquareAM(sqInitial);
+		Square goal = searchSquareAM(sqGoal);
+		
+		return constructShortestPathAM(initial, goal);
+	}
+	
+	public String constructShortestPathAM(Square initial, Square goal) {
+		int indexInitialV = searchVertexIndexAM(initial);
+		int indexGoalV = searchVertexIndexAM(goal);
+		int auxIndex = indexGoalV;
+		
+		ArrayList<Vertex<Square>> prevs = board.dijkstra(board.get(indexInitialV));
+		
+		String pathStr = "";
+		ArrayList<Vertex<Square>> path = new ArrayList<>();
+		
+		while(auxIndex != indexInitialV) {
+			Vertex<Square> prev = prevs.get(auxIndex);
+			
+//			pathStr += "[ " + prev.getValue().getNumber() + " ], ";
+			
+			path.add(0, prev);
+			
+			auxIndex = searchVertexIndexAM(prev.getValue());
+		}
+		
+		for (int i = 0; i < path.size(); i++) {
+			pathStr += "[ " + path.get(i).getValue().getNumber() + " ], ";
+		}
+		
+		pathStr += "[ " + goal.getNumber() + " ]";
+		
+		return pathStr;
+	}
+	
 //	-------- AL Graph --------
 	/**
 	 * Creates the board and all its squares.

@@ -16,7 +16,7 @@ public class Menu {
 	private static final int MOVE_UP = 1;
 	private static final int MOVE_DOWN = -1;
 	
-	private static final int GRAPH_TYPE_IN_USE = 0; //0 to use an AL Graph, 1 to use an AM Graph.
+	private static final int GRAPH_TYPE_IN_USE = 1; //0 to use an AL Graph, 1 to use an AM Graph.
 	
 	private static int gameMode = -1;
 	
@@ -259,6 +259,12 @@ public class Menu {
 		int goalSq = in.nextInt();
 		
 		String shortestPath = GameData.constructShortestPath(goalSq);
+		
+//		if(GRAPH_TYPE_IN_USE == 0) {
+//			shortestPath = GameData.constructShortestPathAL(goalSq);
+//		} else {
+//			shortestPath = GameData.constructShortestPathAM(goalSq);
+//		}
 		
 		if (shortestPath == null) {
 			System.out.println("\nLa casilla a la que deseas ir no es válida. Intenta de nuevo.");
