@@ -3,14 +3,46 @@ package dataStructures;
 import static org.junit.Assert.assertEquals;
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.ArrayList;
+
 import org.junit.jupiter.api.Test;
 
 class GraphTest {
 
 	private Graph<Integer> graph;
+	private Graph<String> graph2;
 	
 	public void setupStage() {
 		graph = new Graph<>();
+	}
+	
+	public void setupStage2() {
+		graph2 = new Graph<>();
+		
+		Vertex<String> aV = new Vertex<String>("a");
+		Vertex<String> bV = new Vertex<String>("b");
+		Vertex<String> cV = new Vertex<String>("c");
+		Vertex<String> dV = new Vertex<String>("d");
+		Vertex<String> eV = new Vertex<String>("e");
+		Vertex<String> zV = new Vertex<String>("z");
+		
+		
+		graph2.addVertex(aV);
+		graph2.addVertex(bV);
+		graph2.addVertex(cV);
+		graph2.addVertex(dV);
+		graph2.addVertex(eV);
+		graph2.addVertex(zV);
+		
+		graph2.addEdge(aV, bV, 4);
+		graph2.addEdge(aV, cV, 2);
+		graph2.addEdge(bV, cV, 1);
+		graph2.addEdge(bV, dV, 5);
+		graph2.addEdge(cV, dV, 8);
+		graph2.addEdge(cV, eV, 10);
+		graph2.addEdge(dV, eV, 2);
+		graph2.addEdge(dV, zV, 6);
+		graph2.addEdge(eV, zV, 3);
 	}
 	
 	@Test
@@ -498,5 +530,33 @@ class GraphTest {
 		
 		assertEquals(-1, graph.getAdjacentMatrix().get(v1.getIdNum()-1).get(v2.getIdNum()-1));
 		assertEquals(-1, graph.getAdjacentMatrix().get(v2.getIdNum()-1).get(v1.getIdNum()-1));
+	}
+	
+	@Test
+	void dijkstraTest1() {
+		setupStage2();
+		
+		Vertex<String> source = graph2.searchVertex("a");
+		
+		ArrayList<Vertex<String>> prevs = graph2.dijkstra(source);
+		
+		ArrayList<String> prevsStr = new ArrayList<>();
+		prevsStr.add(null);
+		
+		for (int i = 1; i < prevs.size(); i++) {
+			prevsStr.add(prevs.get(i).getValue());
+		}
+		
+		ArrayList<String> expected = new ArrayList<>();
+		
+		expected.add(null);
+		expected.add("c");
+		expected.add("a");
+		expected.add("b");
+		expected.add("d");
+		expected.add("e");
+		
+		assertEquals(expected, prevsStr);
+		
 	}
 }

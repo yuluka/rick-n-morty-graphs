@@ -3,6 +3,8 @@ package dataStructures;
 import java.util.ArrayList;
 import java.util.List;
 
+import model.Square;
+
 /**
  * A structure that contains many vertexes (nodes) connected to each other. 
  * 
@@ -246,6 +248,120 @@ public class Graph<T> implements IGraph<T> {
 
 	public ArrayList<ArrayList<Integer>> getAdjacentMatrix() {
 		return adjacentMatrix;
+	}
+
+	@Override
+	public ArrayList<Vertex<T>> dijkstra(Vertex<T> initialV) {
+		ArrayList<Vertex<T>> prevs = new ArrayList<>();
+		ArrayList<Integer> dists = new ArrayList<>();
+		
+		ArrayList<Pair<Vertex<T>>> pq = new ArrayList<>();
+		
+		ArrayList<Vertex<T>> adjacents = getAdjacents(initialV);
+		ArrayList<Integer> adjacentWeights = getAdjacentsWeights(initialV);
+		
+		dists.add(0);
+		
+		for (int i = 0; i < vertexes.size(); i++) {
+			if(!vertexes.get(i).equals(initialV)) {
+				dists.add(i, Integer.MAX_VALUE);
+			}
+			
+			prevs.add(null);
+			
+			pq.add(new Pair<Vertex<T>>(vertexes.get(i), dists.get(i)));
+			sortList(pq);
+		}
+		
+		while(pq.size() > 0) {
+			Vertex<T> u = pq.get(0).getValue();
+			adjacents = getAdjacents(u);
+			adjacentWeights = getAdjacentsWeights(u);
+			
+			int distU = pq.remove(0).getWeight();
+			sortList(pq);
+			
+			for (int i = 0; i < adjacents.size(); i++) {
+				int uIndex = searchIndex(u);
+				int alt = dists.get(uIndex) + adjacentWeights.get(i);
+				int adjacentIndex = searchIndex(adjacents.get(i));
+				
+				if(alt < dists.get(adjacentIndex)) {
+					dists.set(adjacentIndex, alt);
+					prevs.set(adjacentIndex, u);
+					
+					
+//					Q.decrease_priority(v,alt)
+					int indexInPQ = searchIndex(pq, adjacents.get(i));
+					
+					pq.get(indexInPQ).setWeight(alt);
+					sortList(pq);
+				}
+			}
+		}
+		
+		return prevs;
+	}
+	
+	public ArrayList<Vertex<T>> getAdjacents(Vertex<T> u) {
+		ArrayList<Vertex<T>> adjacents = new ArrayList<>();
+		int uIndex = searchIndex(u);
+		
+		for (int i = 0; i < vertexes.size(); i++) {
+			if(adjacentMatrix.get(uIndex).get(i) > -1) {
+				adjacents.add(vertexes.get(i));
+			}
+		}
+		
+		return adjacents;
+	}
+	
+	public ArrayList<Integer> getAdjacentsWeights(Vertex<T> u) {
+		ArrayList<Integer> adjacents = new ArrayList<>();
+		int uIndex = searchIndex(u);
+		
+		for (int i = 0; i < vertexes.size(); i++) {
+			if(adjacentMatrix.get(uIndex).get(i) > -1) {
+				adjacents.add(adjacentMatrix.get(uIndex).get(i));
+			}
+		}
+		
+		return adjacents;
+	}
+	
+	public ArrayList<Pair<Vertex<T>>> sortList(ArrayList<Pair<Vertex<T>>> list) {
+		for (int i = 1; i < list.size(); i++) {
+			for (int j = 0; j < i; j++) {
+				if (list.get(i).getWeight() < list.get(j).getWeight()) {
+					Pair<Vertex<T>> aux = list.get(i);
+					list.remove(i);
+					list.add(j,aux);
+					break;
+				}
+			}
+		}
+		
+		return list;
+	}
+	
+	public int searchIndex(ArrayList<Pair<Vertex<T>>> list, Vertex<T> goal) {
+		for (int i = 0; i < list.size(); i++) {
+			if(list.get(i).getValue().getIdNum() == goal.getIdNum()) {
+				return i;
+			}
+		}
+		
+		return -1;
+	}
+	
+	public int searchIndex(Vertex<T> goal) {
+		for (int i = 0; i < vertexes.size(); i++) {
+			if(vertexes.get(i).getIdNum() == goal.getIdNum()) {
+				return i;
+			}
+		}
+		
+		return -1;
 	}
 	
 }

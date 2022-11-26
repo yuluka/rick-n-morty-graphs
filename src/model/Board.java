@@ -1265,14 +1265,6 @@ public class Board {
 		
 		pathStr += "[ " + goal.getNumber() + " ]";
 		
-//		for (int auxIndex = 0; auxIndex < prevs.size(); i++) {
-//			ALVertex<Square> auxV = prevs.get(indexGoalV);
-//			
-//			path += "[ " + auxV.getValue().getNumber() + " ], ";
-//			
-//			auxIndex = searchVertexIndex(auxV.getValue());
-//		}
-		
 		return pathStr;
 	}
 	

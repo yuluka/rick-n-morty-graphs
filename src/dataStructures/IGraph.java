@@ -1,5 +1,7 @@
 package dataStructures;
 
+import java.util.ArrayList;
+
 public interface IGraph<T> {
 
 	/*
@@ -68,4 +70,15 @@ public interface IGraph<T> {
 	 * @return true if the edge exists. False otherwise.
 	 */
 	boolean searchEdge(Vertex<T> v1, Vertex<T> v2);
+	
+	/**
+	 * Searches for the minimum weight path between the specified initial vertex and all 
+	 * the other vertexes in the graph, and returns the list with the previous vertexes 
+	 * to be visited to take the minimum weight path to each vertex in the graph.
+	 * 
+	 * @param initialV the initial vertex.
+	 * @return the list with the previous vertexes to be visited to take the minimum 
+	 * weight path to each vertex in the graph.
+	 */
+	ArrayList<Vertex<T>> dijkstra(Vertex<T> initialV);
 }
