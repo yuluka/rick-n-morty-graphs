@@ -3,18 +3,22 @@ package dataStructures;
 import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 import org.junit.jupiter.api.Test;
 
 class ALGraphTest {
 
 	private ALGraph<Integer> graph;
+	private ALGraph<String> graph2;
 	
 	public void setupStage1() {
 		graph = new ALGraph<>();
 	}
 	
 	public void setupStage2() {
-		graph = new ALGraph<>();
+		graph2 = new ALGraph<>();
 		
 		ALVertex<Integer> v1 = new ALVertex<>(1);
 		ALVertex<Integer> v2 = new ALVertex<>(2);
@@ -23,6 +27,35 @@ class ALGraphTest {
 		graph.addVertex(v2);
 		
 		graph.addEdge(v1, v2,2);
+	}
+	
+	public void setupStage3() {
+		graph2 = new ALGraph<>();
+		
+		ALVertex<String> aV = new ALVertex<String>("a");
+		ALVertex<String> bV = new ALVertex<String>("b");
+		ALVertex<String> cV = new ALVertex<String>("c");
+		ALVertex<String> dV = new ALVertex<String>("d");
+		ALVertex<String> eV = new ALVertex<String>("e");
+		ALVertex<String> zV = new ALVertex<String>("z");
+		
+		
+		graph2.addVertex(aV);
+		graph2.addVertex(bV);
+		graph2.addVertex(cV);
+		graph2.addVertex(dV);
+		graph2.addVertex(eV);
+		graph2.addVertex(zV);
+		
+		graph2.addEdge(aV, bV, 4);
+		graph2.addEdge(aV, cV, 2);
+		graph2.addEdge(bV, cV, 1);
+		graph2.addEdge(bV, dV, 5);
+		graph2.addEdge(cV, dV, 8);
+		graph2.addEdge(cV, eV, 10);
+		graph2.addEdge(dV, eV, 2);
+		graph2.addEdge(dV, zV, 6);
+		graph2.addEdge(eV, zV, 3);
 	}
 	
 	@Test
@@ -243,5 +276,14 @@ class ALGraphTest {
 		graph.addVertex(v2);
 		
 		assertFalse(graph.removeEdge(v1, v2));
+	}
+	
+	@Test
+	void dijkstraTest1() {
+		setupStage3();
+		
+		ALVertex<String> source = graph2.searchVertex("a");
+		
+		ArrayList<ALVertex<String>> prevs = graph2.dijkstra(source);
 	}
 }

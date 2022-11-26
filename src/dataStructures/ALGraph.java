@@ -1,7 +1,10 @@
 package dataStructures;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+
+import temp.PriorityQueue;
 
 /*
  * AL means Adjacency list.
@@ -147,5 +150,92 @@ public class ALGraph<T> implements ALIGraph<T> {
 		}
 		
 		return vertexes.get(i);
+	}
+
+	@Override
+	public ArrayList<ALVertex<T>> dijkstra(ALVertex<T> initialV) {
+		ArrayList<ALVertex<T>> prevs = new ArrayList<>();
+		ArrayList<Integer> dists = new ArrayList<>();
+//		PriorityQueue<Integer,ALVertex<T>> pq = new PriorityQueue<>();
+		
+		ArrayList<Pair<ALVertex<T>>> pq = new ArrayList<>();
+		
+		dists.add(0);
+		
+		for (int i = 0; i < vertexes.size(); i++) {
+			if(!vertexes.get(i).equals(initialV)) {
+				dists.add(i, Integer.MAX_VALUE);
+			}
+			
+			prevs.add(null);
+			
+			pq.add(new Pair<ALVertex<T>>(vertexes.get(i), dists.get(i)));
+			sortList(pq);
+		}
+		
+		while(pq.size() > 0) {
+			ALVertex<T> u = pq.get(0).getValue();
+			int distU = pq.remove(0).getWeight();
+			sortList(pq);
+			
+			for (int i = 0; i < u.getAdjacents().size(); i++) {
+				int uIndex = searchVertexIndex(u);
+				int alt = dists.get(uIndex) + u.getAdjacents().get(i).getWeight();
+				int adjacentIndex = searchVertexIndex(u.getAdjacents().get(i).getValue());
+				
+				if(alt < dists.get(adjacentIndex)) {
+					dists.set(adjacentIndex, alt);
+					prevs.set(adjacentIndex, u);
+					
+					
+//					Q.decrease_priority(v,alt)
+					int indexInPQ = searchIndex(pq, u.getAdjacents().get(i).getValue());
+					
+					pq.get(indexInPQ).setWeight(alt);
+					sortList(pq);
+				}
+			}
+		}
+		
+//		for (int i = 0; i < vertexes.size(); i++) {
+//			ALVertex<T> u = vertexes.get(i);
+//			
+//			for (int j = 0; j < u.getAdjacents().size(); j++) {
+//				int alt = dists.get(i) + u.getAdjacents().get(j).getWeight();
+//				int adjacentIndex = searchVertexIndex(u.getAdjacents().get(j).getValue());
+//				
+//				if(alt < dists.get(adjacentIndex)) {
+//					dists.set(adjacentIndex, alt);
+//					prevs.set(adjacentIndex, u);
+//				}
+//			}
+//		}
+		
+		return prevs;
+	}
+	
+	public ArrayList<Pair<ALVertex<T>>> sortList(ArrayList<Pair<ALVertex<T>>> list) {
+		for (int i = 1; i < list.size(); i++) {
+			for (int j = 0; j < i; j++) {
+				if (list.get(i).getWeight() < list.get(j).getWeight()) {
+					Pair<ALVertex<T>> aux = list.get(i);
+					list.remove(i);
+					list.add(j,aux);
+					break;
+				}
+			}
+		}
+		
+		return list;
+	}
+	
+	public int searchIndex(ArrayList<Pair<ALVertex<T>>> list, ALVertex<T> goal) {
+		for (int i = 0; i < list.size(); i++) {
+			if(list.get(i).getValue().equals(goal)) {
+				return i;
+			}
+		}
+		
+		return -1;
 	}
 }

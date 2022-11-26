@@ -1,5 +1,7 @@
 package dataStructures;
 
+import java.util.ArrayList;
+
 public interface ALIGraph<T> {
 
 	/*
@@ -68,4 +70,15 @@ public interface ALIGraph<T> {
 	 * @return true if the edge exists. False otherwise.
 	 */
 	boolean searchEdge(ALVertex<T> v1, ALVertex<T> v2);
+	
+	/**
+	 * Searches for the minimum weight path between the specified initial vertex and all 
+	 * the other vertexes in the graph, and returns the list with the previous vertexes 
+	 * to be visited to take the minimum weight path to each vertex in the graph.
+	 * 
+	 * @param initialV the initial vertex.
+	 * @return the list with the previous vertexes to be visited to take the minimum 
+	 * weight path to each vertex in the graph.
+	 */
+	ArrayList<ALVertex<T>> dijkstra(ALVertex<T> initialV);
 }
