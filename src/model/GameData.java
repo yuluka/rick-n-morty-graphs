@@ -13,7 +13,9 @@ import java.util.Collections;
 import java.util.Comparator;
 
 @SuppressWarnings("serial")
-public class GameData implements Serializable{
+public class GameData implements Serializable {
+	
+	private static int GRAPH_TYPE_IN_USE = 0;
 	
 	private final static int MAX_PORTALS = 48; //The maximum quantity of portals that can be created.
 	private final static int MIN_PORTALS = 0;
@@ -39,12 +41,14 @@ public class GameData implements Serializable{
 	 * @param rows the number of rows the board will have.
 	 * @return false if the dimensions are 1*1. True otherwise.
 	 */
-	public static boolean createBoard(int col, int rows, int gameMode) {
+	public static boolean createBoard(int col, int rows, int gameMode, int graphType) {
 		if((col*rows) <= 1) {
 			return false;
 		}
 		
-		board = new Board(col, rows, gameMode);
+		board = new Board(col, rows, gameMode, graphType);
+		
+		GRAPH_TYPE_IN_USE = graphType;
 		
 		return true;
 	}
@@ -62,7 +66,11 @@ public class GameData implements Serializable{
 				|| portals < MIN_PORTALS) {
 			return false;
 		} else {
-			board.generatePortalsAL(portals);
+			if(GRAPH_TYPE_IN_USE == 0) {
+				board.generatePortalsAL(portals);
+			} else {
+				board.generatePortalsAM(portals);
+			}
 			
 			return true;
 		}
@@ -79,8 +87,12 @@ public class GameData implements Serializable{
 		if(seeds > (board.getColumns()*board.getRows()) || seeds <= 0) { 
 			return false; 
 		} else { 
-			board.createSeedsAL(seeds); 
-			 
+			if(GRAPH_TYPE_IN_USE == 0) {
+				board.createSeedsAL(seeds);
+			} else {
+				board.createSeedsAM(seeds);
+			}
+			
 			return true; 
 		} 
 	}
@@ -92,7 +104,11 @@ public class GameData implements Serializable{
 	 * @param usernameM the nickname of the player that is playing as Morty.
 	 */
 	public static void createPlayers(String usernameR, String usernameM) {
-		board.positionPlayersAL(usernameR, usernameM);
+		if(GRAPH_TYPE_IN_USE == 0) {
+			board.positionPlayersAL(usernameR, usernameM);
+		} else {
+			board.positionPlayersAM(usernameR, usernameM);
+		}
 	}
 	
 	public static String printBoard(int boardVersion) {
@@ -121,7 +137,11 @@ public class GameData implements Serializable{
 			return;
 		}
 		
-		board.movePlayerAL(dice, direction);
+		if(GRAPH_TYPE_IN_USE == 0) {
+			board.movePlayerAL(dice, direction);
+		} else {
+			board.movePlayerAM(dice, direction);
+		}
 	}
 	
 	/**
@@ -135,15 +155,21 @@ public class GameData implements Serializable{
 			return false;
 		}
 		
-		if(board.movePlayerUpOrDownAL(dice, direction)){
-			dice -= board.getUP_DOWN_MOVEMENTS_COST();
-			return true;
+		if(GRAPH_TYPE_IN_USE == 0) {
+			if(board.movePlayerUpOrDownAL(dice, direction)){
+				dice -= board.getUP_DOWN_MOVEMENTS_COST();
+				return true;
+			} else {
+				return false;
+			}
 		} else {
-			return false;
+			if(board.movePlayerUpOrDownAM(dice, direction)){
+				dice -= board.getUP_DOWN_MOVEMENTS_COST();
+				return true;
+			} else {
+				return false;
+			}
 		}
-		
-//		dice -= board.getUP_DOWN_MOVEMENTS_COST();
-//		return board.movePlayerUpOrDownAL(dice, direction);
 	}
 	
 	/**

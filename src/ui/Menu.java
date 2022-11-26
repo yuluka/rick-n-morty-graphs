@@ -16,6 +16,8 @@ public class Menu {
 	private static final int MOVE_UP = 1;
 	private static final int MOVE_DOWN = -1;
 	
+	private static final int GRAPH_TYPE_IN_USE = 1; //0 to use an AL Graph, 1 to use an AM Graph.
+	
 	private static int gameMode = -1;
 	
 	public static void menu() {
@@ -93,7 +95,7 @@ public class Menu {
 		int columns = in.nextInt();
 		int rows = in.nextInt();
 		
-		if(!GameData.createBoard(columns, rows, gameMode)) {
+		if(!GameData.createBoard(columns, rows, gameMode, GRAPH_TYPE_IN_USE)) {
 			System.out.println("\nNo es posible crear un tablero tan pequeño. Intenta Nuevamente.");
 			startGame();
 		}
